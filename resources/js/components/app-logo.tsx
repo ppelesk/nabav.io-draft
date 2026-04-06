@@ -1,5 +1,7 @@
 import AppLogoIcon from '@/components/app-logo-icon';
 
+const companyName = import.meta.env.VITE_COMPANY_NAME || 'Naziv tvrtke';
+
 export default function AppLogo() {
     return (
         <>
@@ -9,6 +11,9 @@ export default function AppLogo() {
             <div className="ml-1 grid flex-1 text-left text-sm">
                 <span className="mb-0.5 truncate leading-tight font-semibold">
                     inventur.io v1.0
+                </span>
+                <span className="truncate text-xs text-sidebar-foreground/70">
+                    {companyName}
                 </span>
             </div>
         </>

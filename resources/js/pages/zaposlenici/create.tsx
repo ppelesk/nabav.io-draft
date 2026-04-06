@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 type ZaposlenikForm = {
-    id_korisnika: number | null;
     oib_zaposlenika: string;
     ime_zaposlenika: string;
     prezime_zaposlenika: string;
@@ -15,7 +14,6 @@ type ZaposlenikForm = {
 
 export default function ZaposleniciCreate() {
     const { data, setData, post, processing, errors } = useForm<ZaposlenikForm>({
-        id_korisnika: null,
         oib_zaposlenika: '',
         ime_zaposlenika: '',
         prezime_zaposlenika: '',
@@ -38,25 +36,6 @@ export default function ZaposleniciCreate() {
                 />
 
                 <form className="space-y-6" onSubmit={onSubmit}>
-                    <div className="grid gap-2">
-                        <Label htmlFor="id_korisnika">ID korisnika (opcionalno)</Label>
-                        <Input
-                            id="id_korisnika"
-                            type="number"
-                            min={1}
-                            value={data.id_korisnika ?? ''}
-                            onChange={(event) =>
-                                setData(
-                                    'id_korisnika',
-                                    event.target.value === ''
-                                        ? null
-                                        : Number(event.target.value)
-                                )
-                            }
-                        />
-                        <InputError message={errors.id_korisnika} />
-                    </div>
-
                     <div className="grid gap-2">
                         <Label htmlFor="oib_zaposlenika">OIB zaposlenika</Label>
                         <Input
