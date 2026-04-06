@@ -13,11 +13,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(UlogaSeeder::class);
+
+        $korisnikUlogaId = \App\Models\Uloga::query()
+            ->where('sifra_uloge', 'korisnik')
+            ->value('id_uloge');
+
         // User::factory(10)->create();
 
         User::factory()->create([
             'name' => 'Test User',
+            'ime_korisnika' => 'Test',
+            'prezime_korisnika' => 'User',
             'email' => 'test@example.com',
+            'id_uloge' => $korisnikUlogaId,
         ]);
     }
 }
