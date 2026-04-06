@@ -4,6 +4,7 @@ namespace App\Actions\Fortify;
 
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
+use App\Models\Uloga;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -24,8 +25,20 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
+        $korisnikUlogaId = Uloga::query()
+            ->where('sifra_uloge', 'korisnik')
+            ->value('id_uloge');
+
+        $name = trim($input['name']);
+        $parts = preg_split('/\s+/', $name) ?: [];
+        $ime = $parts[0] ?? $name;
+        $prezime = count($parts) > 1 ? implode(' ', array_slice($parts, 1)) : 'Korisnik';
+
         return User::create([
-            'name' => $input['name'],
+            'id_uloge' => $korisnikUlogaId,
+            'ime_korisnika' => $ime,
+            'prezime_korisnika' => $prezime,
+            'name' => $name,
             'email' => $input['email'],
             'password' => $input['password'],
         ]);

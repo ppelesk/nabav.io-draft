@@ -1,8 +1,16 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import {
+    BookOpen,
+    CircleDot,
+    FolderGit2,
+    LayoutGrid,
+    Network,
+    Tags,
+    Users,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
-import { NavMain } from '@/components/nav-main';
+import { NavMain, type MainNavItem } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
     Sidebar,
@@ -16,11 +24,60 @@ import {
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
+const mainNavItems: MainNavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Administracija sustava',
+        icon: Users,
+        items: [
+            {
+                title: 'Šifrarnici',
+                icon: Tags,
+                items: [
+                    {
+                        title: 'Upravljanje ulogama',
+                        href: '/uloge',
+                    },
+                    {
+                        title: 'Upravljanje lokacijama',
+                        href: '/lokacije',
+                    },
+                    {
+                        title: 'Upravljanje odjelima',
+                        href: '/odjeli',
+                    },
+                    {
+                        title: 'Upravljanje kategorijama imovine',
+                        href: '/kategorije-imovine',
+                    },
+                    {
+                        title: 'Upravljanje statusima imovine',
+                        href: '/status-imovine',
+                    },
+                    {
+                        title: 'Upravljanje zgradama',
+                        href: '/zgrade',
+                    },
+                ],
+            },
+            {
+                title: 'Upravljanje zaposlenicima',
+                href: '/zaposlenici',
+            },
+            {
+                title: 'Upravljanje korisnicima',
+                href: '/korisnici',
+            },
+            {
+                title: 'Audit log',
+                href: '/audit-log',
+                icon: CircleDot,
+            },
+        ],
     },
 ];
 
