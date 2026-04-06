@@ -39,37 +39,37 @@ const mainNavItems: MainNavItem[] = [
                 icon: Tags,
                 items: [
                     {
-                        title: 'Upravljanje ulogama',
+                        title: 'Uloge',
                         href: '/uloge',
                     },
                     {
-                        title: 'Upravljanje lokacijama',
+                        title: 'Lokacije',
                         href: '/lokacije',
                     },
                     {
-                        title: 'Upravljanje odjelima',
+                        title: 'Odjeli',
                         href: '/odjeli',
                     },
                     {
-                        title: 'Upravljanje kategorijama imovine',
+                        title: 'Kategorije imovine',
                         href: '/kategorije-imovine',
                     },
                     {
-                        title: 'Upravljanje statusima imovine',
+                        title: 'Statusi imovine',
                         href: '/status-imovine',
                     },
                     {
-                        title: 'Upravljanje zgradama',
+                        title: 'Zgrade',
                         href: '/zgrade',
                     },
                 ],
             },
             {
-                title: 'Upravljanje zaposlenicima',
+                title: 'Zaposlenici',
                 href: '/zaposlenici',
             },
             {
-                title: 'Upravljanje korisnicima',
+                title: 'Korisnici',
                 href: '/korisnici',
             },
             {

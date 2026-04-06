@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('zaposlenici', function (Blueprint $table) {
             $table->bigIncrements('id_zaposlenika');
-            $table->foreignId('id_korisnika')->nullable()->constrained('users')->nullOnDelete();
             $table->char('oib_zaposlenika', 11)->unique();
             $table->string('ime_zaposlenika');
             $table->string('prezime_zaposlenika');

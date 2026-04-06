@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type Zaposlenik = {
     id_zaposlenika: number;
-    id_korisnika: number | null;
     oib_zaposlenika: string;
     ime_zaposlenika: string;
     prezime_zaposlenika: string;
@@ -36,10 +35,6 @@ export default function ZaposleniciShow({
                         <p>
                             <strong>ID zaposlenika:</strong>{' '}
                             {zaposlenik.id_zaposlenika}
-                        </p>
-                        <p>
-                            <strong>ID korisnika:</strong>{' '}
-                            {zaposlenik.id_korisnika ?? '-'}
                         </p>
                         <p>
                             <strong>OIB:</strong> {zaposlenik.oib_zaposlenika}

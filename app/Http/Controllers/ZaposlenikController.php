@@ -18,7 +18,6 @@ class ZaposlenikController extends Controller
                 ->latest('id_zaposlenika')
                 ->get([
                     'id_zaposlenika',
-                    'id_korisnika',
                     'oib_zaposlenika',
                     'ime_zaposlenika',
                     'prezime_zaposlenika',
@@ -43,7 +42,6 @@ class ZaposlenikController extends Controller
         return Inertia::render('zaposlenici/show', [
             'zaposlenik' => $zaposlenici->only([
                 'id_zaposlenika',
-                'id_korisnika',
                 'oib_zaposlenika',
                 'ime_zaposlenika',
                 'prezime_zaposlenika',
@@ -58,7 +56,6 @@ class ZaposlenikController extends Controller
         return Inertia::render('zaposlenici/edit', [
             'zaposlenik' => $zaposlenici->only([
                 'id_zaposlenika',
-                'id_korisnika',
                 'oib_zaposlenika',
                 'ime_zaposlenika',
                 'prezime_zaposlenika',
@@ -86,7 +83,6 @@ class ZaposlenikController extends Controller
     private function validatePayload(Request $request, ?Zaposlenik $zaposlenici = null): array
     {
         return $request->validate([
-            'id_korisnika' => ['nullable', 'integer', 'exists:users,id'],
             'oib_zaposlenika' => [
                 'required',
                 'digits:11',

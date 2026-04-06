@@ -8,14 +8,12 @@ import { Label } from '@/components/ui/label';
 
 type Zaposlenik = {
     id_zaposlenika: number;
-    id_korisnika: number | null;
     oib_zaposlenika: string;
     ime_zaposlenika: string;
     prezime_zaposlenika: string;
 };
 
 type ZaposlenikForm = {
-    id_korisnika: number | null;
     oib_zaposlenika: string;
     ime_zaposlenika: string;
     prezime_zaposlenika: string;
@@ -27,7 +25,6 @@ export default function ZaposleniciEdit({
     zaposlenik: Zaposlenik;
 }) {
     const { data, setData, put, processing, errors } = useForm<ZaposlenikForm>({
-        id_korisnika: zaposlenik.id_korisnika,
         oib_zaposlenika: zaposlenik.oib_zaposlenika,
         ime_zaposlenika: zaposlenik.ime_zaposlenika,
         prezime_zaposlenika: zaposlenik.prezime_zaposlenika,
@@ -50,25 +47,6 @@ export default function ZaposleniciEdit({
                 />
 
                 <form className="space-y-6" onSubmit={onSubmit}>
-                    <div className="grid gap-2">
-                        <Label htmlFor="id_korisnika">ID korisnika (opcionalno)</Label>
-                        <Input
-                            id="id_korisnika"
-                            type="number"
-                            min={1}
-                            value={data.id_korisnika ?? ''}
-                            onChange={(event) =>
-                                setData(
-                                    'id_korisnika',
-                                    event.target.value === ''
-                                        ? null
-                                        : Number(event.target.value)
-                                )
-                            }
-                        />
-                        <InputError message={errors.id_korisnika} />
-                    </div>
-
                     <div className="grid gap-2">
                         <Label htmlFor="oib_zaposlenika">OIB zaposlenika</Label>
                         <Input

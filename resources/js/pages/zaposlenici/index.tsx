@@ -12,7 +12,6 @@ import { dashboard } from '@/routes';
 
 type Zaposlenik = {
     id_zaposlenika: number;
-    id_korisnika: number | null;
     oib_zaposlenika: string;
     ime_zaposlenika: string;
     prezime_zaposlenika: string;
@@ -66,9 +65,6 @@ export default function ZaposleniciIndex({
                                         <th className="py-3 pr-4 font-medium">
                                             ID zaposlenika
                                         </th>
-                                        <th className="py-3 pr-4 font-medium">
-                                            ID korisnika
-                                        </th>
                                         <th className="py-3 pr-4 font-medium">OIB</th>
                                         <th className="py-3 pr-4 font-medium">Ime</th>
                                         <th className="py-3 pr-4 font-medium">
@@ -84,7 +80,7 @@ export default function ZaposleniciIndex({
                                         <tr>
                                             <td
                                                 className="py-6 text-muted-foreground"
-                                                colSpan={6}
+                                                colSpan={5}
                                             >
                                                 Nema unesenih zaposlenika.
                                             </td>
@@ -99,10 +95,6 @@ export default function ZaposleniciIndex({
                                                     {
                                                         zaposlenik.id_zaposlenika
                                                     }
-                                                </td>
-                                                <td className="py-3 pr-4">
-                                                    {zaposlenik.id_korisnika ??
-                                                        '-'}
                                                 </td>
                                                 <td className="py-3 pr-4">
                                                     {zaposlenik.oib_zaposlenika}
