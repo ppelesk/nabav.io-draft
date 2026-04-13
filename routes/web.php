@@ -20,7 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'dozvola:korisnik'])->group(function () {
 
     Route::get('audit-log', [AuditLogController::class, 'index'])->name('audit-log.index');
     Route::resource('kategorije-imovine', KategorijaImovineController::class);
@@ -35,6 +35,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('korisnici/{korisnici}/resend-invite', [KorisnikController::class, 'resendInvite'])
         ->name('korisnici.resend-invite');
 });
+
+
+
 
 require __DIR__.'/settings.php';
 
