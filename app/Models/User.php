@@ -47,4 +47,15 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Uloga::class, 'id_uloge', 'id_uloge');
     }
+
+    public function imaDozvolu(string $sifraDozvole): bool
+    {
+        $uloga = $this->uloga;
+
+        if (! $uloga) {
+            return false;
+        }
+
+        return $uloga->imaDozvolu($sifraDozvole);
+    }
 }
