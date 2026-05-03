@@ -36,6 +36,10 @@ class AuditCrudOperations
             'odjeli',
             'kategorije-imovine',
             'status-imovine',
+            'imovina',
+            'inventura',
+            'izvjestaji',
+            'provjera-barkoda',
         ];
 
         if (! in_array($modul, $moduliZaLog, true)) {
@@ -51,6 +55,10 @@ class AuditCrudOperations
             'update' => 'azuriraj',
             'destroy' => 'obrisi',
             'resend-invite' => 'ponovno_slanje_pozivnice',
+            'popisano' => 'oznaci_popisanu',
+            'zaduzi' => 'zaduzi',
+            'razduzi' => 'razduzi',
+            'skeniraj' => 'skeniraj',
         ];
 
         if (! isset($akcijaMap[$akcija])) {
