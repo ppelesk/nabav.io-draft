@@ -40,9 +40,7 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'auth' => [
                 'user' => $request->user(),
-                'dozvole' => $request->user()
-                    ? $request->user()->uloga?->dozvole->pluck('sifra_dozvole')->all() ?? []
-                    : [],
+                'sifra_uloge' => $request->user()?->uloga?->sifra_uloge,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

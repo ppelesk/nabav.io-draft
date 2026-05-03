@@ -79,6 +79,49 @@ const mainNavItems: MainNavItem[] = [
             },
         ],
     },
+    {
+        title: 'Upravljanje imovinom',
+        icon: Network,
+        items: [
+            {
+                title: 'CRUD imovine',
+                items: [
+                    {
+                        title: 'Popis imovine',
+                        href: '/imovina',
+                    },
+                    {
+                        title: 'Dodaj imovinu',
+                        href: '/imovina/create',
+                    },
+                ],
+            },
+            {
+                title: 'Zaduzenje imovine',
+                href: '/imovina/zaduzenje',
+            },
+            {
+                title: 'Razduzenje imovine',
+                href: '/imovina/razduzenje',
+            },
+            {
+                title: 'Barkod naljepnice',
+                href: '/imovina/barkod-naljepnice',
+            },
+            {
+                title: 'Inventura',
+                href: '/inventura',
+            },
+            {
+                title: 'Izvjestaji',
+                href: '/izvjestaji',
+            },
+            {
+                title: 'Provjera barkoda',
+                href: '/provjera-barkoda',
+            },
+        ],
+    },
 ];
 
 const footerNavItems: NavItem[] = [

@@ -150,7 +150,7 @@ class KorisnikController extends Controller
             'prezime_korisnika' => ['required', 'string', 'max:100'],
             'email' => [
                 'required',
-                'email:rfc,dns',
+                'email:rfc',
                 'max:150',
                 Rule::unique('users', 'email')->ignore($korisnik?->id),
             ],

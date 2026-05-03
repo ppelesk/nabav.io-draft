@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Middleware\EnsureUserHasDozvola;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\AuditCrudOperations;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -17,10 +16,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
-
-        $middleware->alias([
-            'dozvola' => EnsureUserHasDozvola::class,
-        ]);
 
         $middleware->web(append: [
             HandleAppearance::class,

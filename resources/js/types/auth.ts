@@ -12,6 +12,7 @@ export type User = {
 
 export type Auth = {
     user: User;
+    sifra_uloge: string | null;
 };
 
 export type TwoFactorSetupData = {
