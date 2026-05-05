@@ -41,7 +41,7 @@ type ImovinaPayload = {
     id_kategorije: number;
     id_statusa: number;
     id_odjela: number | null;
-    id_lokacije: number | null;
+    id_lokacije: number;
     id_zaposlenika: number | null;
     na_revers: boolean;
     datum_zaduzenja: string | null;

@@ -270,16 +270,16 @@ export default function ImovinaCreate({
                         <div className="grid gap-2">
                             <Label htmlFor="id_lokacije">Lokacija</Label>
                             <Select
-                                value={data.id_lokacije || 'none'}
+                                required
+                                value={data.id_lokacije || ''}
                                 onValueChange={(value) =>
-                                    setData('id_lokacije', value === 'none' ? '' : value)
+                                    setData('id_lokacije', value)
                                 }
                             >
                                 <SelectTrigger id="id_lokacije">
                                     <SelectValue placeholder="Odaberite lokaciju" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="none">Nije dodijeljeno</SelectItem>
                                     {lokacije.map((lokacija) => (
                                         <SelectItem
                                             key={lokacija.id_lokacije}
