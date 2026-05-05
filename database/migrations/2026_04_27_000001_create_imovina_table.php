@@ -25,13 +25,12 @@ return new class extends Migration
             $table->unsignedBigInteger('id_kategorije');
             $table->unsignedBigInteger('id_statusa');
             $table->unsignedBigInteger('id_odjela')->nullable();
-            $table->unsignedBigInteger('id_lokacije')->nullable();
+            $table->unsignedBigInteger('id_lokacije');
             $table->unsignedBigInteger('id_zaposlenika')->nullable();
             $table->boolean('na_revers')->default(false);
             $table->date('datum_zaduzenja')->nullable();
             $table->date('datum_razduzenja')->nullable();
             $table->timestamp('datum_popisa')->nullable();
-            $table->timestamps();
 
             $table->foreign('id_kategorije')
                 ->references('id_kategorije')

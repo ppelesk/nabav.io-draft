@@ -16,7 +16,6 @@ return new class extends Migration
             $table->bigIncrements('id_uloge');
             $table->string('naziv_uloge', 100);
             $table->string('sifra_uloge', 50)->unique();
-            $table->timestamps();
         });
 
         $now = now();

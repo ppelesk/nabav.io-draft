@@ -15,7 +15,6 @@ return new class extends Migration
             $table->bigIncrements('id_zgrade');
             $table->string('naziv_zgrade', 150);
             $table->string('adresa_zgrade', 200)->nullable();
-            $table->timestamps();
         });
     }
 

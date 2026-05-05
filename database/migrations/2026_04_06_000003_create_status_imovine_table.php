@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('status_imovine', function (Blueprint $table) {
             $table->bigIncrements('id_statusa');
             $table->string('naziv_statusa', 100);
-            $table->timestamps();
         });
     }
 
