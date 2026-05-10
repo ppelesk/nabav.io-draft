@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\SetupController;
 use App\Http\Controllers\ImovinaController;
 use App\Http\Controllers\InventuraController;
 use App\Http\Controllers\IzvjestajController;
@@ -15,6 +16,11 @@ use App\Http\Controllers\ZaposlenikController;
 use App\Http\Controllers\ZgradaController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
+
+Route::controller(SetupController::class)->group(function () {
+    Route::get('setup', 'create')->name('setup.create');
+    Route::post('setup', 'store')->name('setup.store');
+});
 
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),

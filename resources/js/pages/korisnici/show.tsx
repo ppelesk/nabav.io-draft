@@ -1,6 +1,8 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { CircleCheckBig } from 'lucide-react';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type Korisnik = {
@@ -17,6 +19,8 @@ type Korisnik = {
 };
 
 export default function KorisniciShow({ korisnik }: { korisnik: Korisnik }) {
+    const { flash } = usePage<{ flash?: { status?: string } }>().props;
+
     const ponovnoPosaljiPozivnicu = () => {
         router.post(`/korisnici/${korisnik.id_korisnika}/resend-invite`);
     };
@@ -27,6 +31,14 @@ export default function KorisniciShow({ korisnik }: { korisnik: Korisnik }) {
 
             <div className="space-y-6 p-4">
                 <Heading title="Detalji korisnika" description={`Zapis #${korisnik.id_korisnika}`} />
+
+                {flash?.status && (
+                    <Alert>
+                        <CircleCheckBig />
+                        <AlertTitle>Pozivnica poslana</AlertTitle>
+                        <AlertDescription>{flash.status}</AlertDescription>
+                    </Alert>
+                )}
 
                 <Card>
                     <CardHeader>

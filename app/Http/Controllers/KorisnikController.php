@@ -58,7 +58,8 @@ class KorisnikController extends Controller
 
         Password::sendResetLink(['email' => $korisnik->email]);
 
-        return to_route('korisnici.index');
+        return to_route('korisnici.index')
+            ->with('status', 'Pozivnica je poslana. Korisnik dovrsava registraciju postavljanjem lozinke iz email poruke.');
     }
 
     public function show(User $korisnici): Response
@@ -124,7 +125,8 @@ class KorisnikController extends Controller
     {
         Password::sendResetLink(['email' => $korisnici->email]);
 
-        return to_route('korisnici.show', $korisnici->id);
+        return to_route('korisnici.show', $korisnici->id)
+            ->with('status', 'Pozivnica je ponovno poslana. Korisnik moze dovrsiti registraciju kroz link iz emaila.');
     }
 
     /**
