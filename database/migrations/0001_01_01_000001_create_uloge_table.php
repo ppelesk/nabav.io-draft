@@ -18,27 +18,10 @@ return new class extends Migration
             $table->string('sifra_uloge', 50)->unique();
         });
 
-        $now = now();
-
         DB::table('uloge')->insert([
-            [
-                'naziv_uloge' => 'Administrator sustava',
-                'sifra_uloge' => 'administrator_sustava',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'naziv_uloge' => 'Upravitelj imovinom',
-                'sifra_uloge' => 'upravitelj_imovinom',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'naziv_uloge' => 'Korisnik',
-                'sifra_uloge' => 'korisnik',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
+            ['naziv_uloge' => 'Administrator sustava', 'sifra_uloge' => 'administrator_sustava'],
+            ['naziv_uloge' => 'Upravitelj imovinom',   'sifra_uloge' => 'upravitelj_imovinom'],
+            ['naziv_uloge' => 'Korisnik',              'sifra_uloge' => 'korisnik'],
         ]);
     }
 

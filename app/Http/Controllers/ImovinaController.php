@@ -423,7 +423,7 @@ class ImovinaController extends Controller
             'id_kategorije' => ['required', 'integer', 'exists:kategorije_imovine,id_kategorije'],
             'id_statusa' => ['required', 'integer', 'exists:status_imovine,id_statusa'],
             'id_odjela' => ['nullable', 'integer', 'exists:odjeli,id_odjela'],
-            'id_lokacije' => ['nullable', 'integer', 'exists:lokacije,id_lokacije'],
+            'id_lokacije' => [$imovina === null ? 'required' : 'nullable', 'integer', 'exists:lokacije,id_lokacije'],
             'id_zaposlenika' => ['nullable', 'integer', 'exists:zaposlenici,id_zaposlenika'],
             'na_revers' => ['nullable', 'boolean'],
             'datum_zaduzenja' => ['nullable', 'date'],

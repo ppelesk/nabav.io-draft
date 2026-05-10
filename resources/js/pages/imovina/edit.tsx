@@ -87,7 +87,7 @@ export default function ImovinaEdit({
         naziv_imovine: imovina.naziv_imovine,
         serijski_broj: imovina.serijski_broj ?? '',
         broj_racuna: imovina.broj_racuna ?? '',
-        datum_nabave: imovina.datum_nabave,
+        datum_nabave: imovina.datum_nabave?.substring(0, 10) ?? '',
         cijena: imovina.cijena,
         jamstvo_mjeseci: String(imovina.jamstvo_mjeseci),
         amortizacija_mjeseci: imovina.amortizacija_mjeseci
@@ -99,8 +99,8 @@ export default function ImovinaEdit({
         id_lokacije: imovina.id_lokacije ? String(imovina.id_lokacije) : '',
         id_zaposlenika: imovina.id_zaposlenika ? String(imovina.id_zaposlenika) : '',
         na_revers: imovina.na_revers ? '1' : '0',
-        datum_zaduzenja: imovina.datum_zaduzenja ?? '',
-        datum_razduzenja: imovina.datum_razduzenja ?? '',
+        datum_zaduzenja: imovina.datum_zaduzenja?.substring(0, 10) ?? '',
+        datum_razduzenja: imovina.datum_razduzenja?.substring(0, 10) ?? '',
     });
 
     const onSubmit = (event: FormEvent<HTMLFormElement>) => {

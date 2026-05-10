@@ -1,7 +1,8 @@
 <?php
 
-use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\AuditCrudOperations;
+use App\Http\Middleware\EnsureAppIsSetup;
+use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [
+            EnsureAppIsSetup::class,
             HandleAppearance::class,
             AuditCrudOperations::class,
             HandleInertiaRequests::class,

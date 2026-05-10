@@ -14,6 +14,8 @@ class Uloga extends Model
 
     protected $primaryKey = 'id_uloge';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'naziv_uloge',
         'sifra_uloge',

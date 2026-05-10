@@ -1,6 +1,8 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { CircleCheckBig } from 'lucide-react';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
     Card,
     CardContent,
@@ -22,6 +24,8 @@ type Korisnik = {
 };
 
 export default function KorisniciIndex({ korisnici }: { korisnici: Korisnik[] }) {
+    const { flash } = usePage<{ flash?: { status?: string } }>().props;
+
     const obrisiKorisnika = (idKorisnika: number) => {
         if (!window.confirm('Jeste li sigurni da zelite obrisati korisnika?')) {
             return;
@@ -36,6 +40,14 @@ export default function KorisniciIndex({ korisnici }: { korisnici: Korisnik[] })
 
             <div className="space-y-6 p-4">
                 <Heading title="Korisnici" description="Upravljanje korisnickim racunima" />
+
+                {flash?.status && (
+                    <Alert>
+                        <CircleCheckBig />
+                        <AlertTitle>Pozivnica poslana</AlertTitle>
+                        <AlertDescription>{flash.status}</AlertDescription>
+                    </Alert>
+                )}
 
                 <div className="flex items-center justify-end">
                     <Button asChild>
