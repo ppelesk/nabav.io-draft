@@ -25,8 +25,7 @@ class UlogaSeeder extends Seeder
                 ['sifra_uloge' => $uloga['sifra_uloge']],
                 [
                     'naziv_uloge' => $uloga['naziv_uloge'],
-                    'updated_at' => $now,
-                    'created_at' => $now,
+
                 ]
             );
         }

@@ -1,11 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { dashboard, login } from '@/routes';
 
-export default function Welcome({
-    canRegister = true,
-}: {
-    canRegister?: boolean;
-}) {
+export default function Welcome() {
     const { auth } = usePage().props;
 
     return (
@@ -44,7 +40,7 @@ export default function Welcome({
                                         <a
                                             href="https://laravel.com/docs"
                                             target="_blank"
-                                            className="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]"
+                                            className="ml-1 inline-flex items-center space-x-1 font-medium text-[#f53003] underline underline-offset-4 dark:text-[#FF4433]" rel="noreferrer"
                                         >
                                             <span>Korisničku uputu</span>
                                             <svg

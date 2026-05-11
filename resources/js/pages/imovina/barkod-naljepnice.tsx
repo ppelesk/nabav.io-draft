@@ -59,6 +59,7 @@ export default function BarkodNaljepnice({
         setSelectedIds((prev) => {
             const set = new Set(prev);
             filtered.forEach((stavka) => set.add(stavka.id_imovine));
+
             return Array.from(set);
         });
     };

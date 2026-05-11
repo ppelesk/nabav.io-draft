@@ -8,7 +8,7 @@ use App\Models\Funkcija;
 class AuditLogger
 {
     /**
-     * @param array<string, mixed> $detalji
+     * @param  array<string, mixed>  $detalji
      */
     public static function log(
         string $sifraFunkcije,

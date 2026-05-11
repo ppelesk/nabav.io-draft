@@ -1,5 +1,5 @@
-import { FormEvent } from 'react';
 import { Head, useForm } from '@inertiajs/react';
+import type { FormEvent } from 'react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';

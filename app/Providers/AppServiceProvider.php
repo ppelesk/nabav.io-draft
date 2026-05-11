@@ -44,6 +44,7 @@ class AppServiceProvider extends ServiceProvider
         } catch (Throwable) {
             // Cannot connect to DB at all
             Config::set('session.driver', 'array');
+
             return;
         }
 
@@ -66,8 +67,7 @@ class AppServiceProvider extends ServiceProvider
             true
         ));
 
-        Gate::define('administrator_sustava', fn ($user) =>
-            $user->uloga?->sifra_uloge === 'administrator_sustava'
+        Gate::define('administrator_sustava', fn ($user) => $user->uloga?->sifra_uloge === 'administrator_sustava'
         );
     }
 
