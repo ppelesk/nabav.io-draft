@@ -10,7 +10,8 @@ import {
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
-import { NavMain, type MainNavItem } from '@/components/nav-main';
+import { NavMain  } from '@/components/nav-main';
+import type {MainNavItem} from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
     Sidebar,
