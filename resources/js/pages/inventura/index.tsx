@@ -1,6 +1,7 @@
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library';
+import type { FormEvent} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -85,9 +86,15 @@ export default function InventuraIndex({
     const submitScan = useCallback(
         (kod: string) => {
             const trimmed = kod.trim();
-            if (!trimmed || !activeLokacijaId) return;
 
-            if (trimmed === lastScannedKodRef.current) return;
+            if (!trimmed || !activeLokacijaId) {
+return;
+}
+
+            if (trimmed === lastScannedKodRef.current) {
+return;
+}
+
             lastScannedKodRef.current = trimmed;
 
             setIsLoadingResult(true);
@@ -120,6 +127,7 @@ export default function InventuraIndex({
     const startScanner = useCallback(() => {
         if (!activeLokacijaId) {
             setScannerError('Prvo odaberite sobu za inventuru.');
+
             return;
         }
 
@@ -129,6 +137,7 @@ export default function InventuraIndex({
 
         if (!videoRef.current) {
             setScannerError('Video element nije pronaden. Osvjezite stranicu.');
+
             return;
         }
 
@@ -152,6 +161,7 @@ export default function InventuraIndex({
                     const ocitaniKod = result.getText();
                     setScannerStatus(`Ocitano: ${ocitaniKod}`);
                     submitScan(ocitaniKod);
+
                     return;
                 }
 

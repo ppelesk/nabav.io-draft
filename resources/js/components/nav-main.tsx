@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
-import type { ComponentType } from 'react';
+import type { InertiaLinkProps } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
+import type { ComponentType } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
     SidebarGroup,
@@ -13,7 +14,6 @@ import {
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import type { InertiaLinkProps } from '@inertiajs/react';
 
 export type MainNavItem = {
     title: string;
