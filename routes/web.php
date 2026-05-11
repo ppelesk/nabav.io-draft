@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\ImovinaController;
 use App\Http\Controllers\InventuraController;
+use App\Http\Controllers\InventurnaListaController;
 use App\Http\Controllers\IzvjestajController;
 use App\Http\Controllers\KategorijaImovineController;
 use App\Http\Controllers\KorisnikController;
@@ -28,6 +29,15 @@ Route::inertia('/', 'welcome', [
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
+});
+
+
+Route::middleware(['auth', 'verified', 'can:upravitelj_imovinom'])->group(function () {
+    Route::get('/inventurna-lista', [InventurnaListaController::class, 'index'])->name('inventurna-lista.index');
+    Route::get('/inventurna-lista/create', [InventurnaListaController::class, 'create'])->name('inventurna-lista.create');
+    Route::post('/inventurna-lista', [InventurnaListaController::class, 'store'])->name('inventurna-lista.store');
+    Route::get('/inventurna-lista/{lista}', [InventurnaListaController::class, 'show'])->name('inventurna-lista.show');
+    Route::post('/inventurna-lista/{lista}/skeniraj', [InventurnaListaController::class, 'skeniraj'])->name('inventurna-lista.skeniraj');
 });
 
 Route::middleware(['auth', 'verified', 'can:korisnik'])->group(function () {
@@ -68,3 +78,5 @@ Route::middleware(['auth', 'verified', 'can:korisnik'])->group(function () {
 });
 
 require __DIR__.'/settings.php';
+
+
