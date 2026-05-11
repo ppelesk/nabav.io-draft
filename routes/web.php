@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AuditLogController;
-use App\Http\Controllers\SetupController;
 use App\Http\Controllers\ImovinaController;
 use App\Http\Controllers\InventuraController;
 use App\Http\Controllers\IzvjestajController;
@@ -10,6 +9,7 @@ use App\Http\Controllers\KorisnikController;
 use App\Http\Controllers\LokacijaController;
 use App\Http\Controllers\OdjelController;
 use App\Http\Controllers\ProvjeraBarkodaController;
+use App\Http\Controllers\SetupController;
 use App\Http\Controllers\StatusImovineController;
 use App\Http\Controllers\UlogaController;
 use App\Http\Controllers\ZaposlenikController;
@@ -67,9 +67,4 @@ Route::middleware(['auth', 'verified', 'can:korisnik'])->group(function () {
         ->name('korisnici.resend-invite');
 });
 
-
-
-
 require __DIR__.'/settings.php';
-
-
