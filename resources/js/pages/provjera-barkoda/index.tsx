@@ -1,9 +1,9 @@
-import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library';
+import type { FormEvent} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
@@ -13,6 +13,7 @@ import {
     DialogFooter,
     DialogClose,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 type Stavka = {
     id_imovine: number;
@@ -32,7 +33,7 @@ type Stavka = {
 
 export default function ProvjeraBarkodaIndex({
     kod,
-    stavka,
+    stavka: _stavka,
 }: {
     kod: string;
     stavka: Stavka | null;
@@ -66,10 +67,16 @@ export default function ProvjeraBarkodaIndex({
 
     const lookupKod = useCallback((ocitaniKod: string) => {
         const trimmed = ocitaniKod.trim();
-        if (!trimmed) return;
+
+        if (!trimmed) {
+return;
+}
 
         // Prevent re-looking-up the same code while popup is open.
-        if (trimmed === lastLookedUpRef.current) return;
+        if (trimmed === lastLookedUpRef.current) {
+return;
+}
+
         lastLookedUpRef.current = trimmed;
 
         setIsLoadingResult(true);
@@ -107,6 +114,7 @@ export default function ProvjeraBarkodaIndex({
 
         if (!videoRef.current) {
             setScannerError('Video element nije pronaden. Osvjezite stranicu.');
+
             return;
         }
 
@@ -130,6 +138,7 @@ export default function ProvjeraBarkodaIndex({
                     const ocitaniKod = result.getText();
                     setScannerStatus(`Barkod pronadjen: ${ocitaniKod}`);
                     lookupKod(ocitaniKod);
+
                     return;
                 }
 
