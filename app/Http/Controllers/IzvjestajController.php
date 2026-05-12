@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Imovina;
+use App\Models\InventurnaLista;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -12,6 +13,12 @@ class IzvjestajController extends Controller
     public function index(): Response
     {
         $sumCijena = (float) Imovina::query()->sum('cijena');
+
+        $inventurnaListaSazetak = [
+            'ukupno_listi' => InventurnaLista::query()->count(),
+            'otvorene_liste' => InventurnaLista::query()->where('status_liste', 'u_tijeku')->count(),
+            'zavrsene_liste' => InventurnaLista::query()->where('status_liste', 'zavrsena')->count(),
+        ];
 
         return Inertia::render('izvjestaji/index', [
             'sazetak' => [
@@ -23,6 +30,7 @@ class IzvjestajController extends Controller
                     ->whereNotNull('id_zaposlenika')
                     ->count(),
             ],
+            'inventurnaListaSazetak' => $inventurnaListaSazetak,
             'poStatusu' => Imovina::query()
                 ->join('status_imovine', 'status_imovine.id_statusa', '=', 'imovina.id_statusa')
                 ->select('status_imovine.naziv_statusa', DB::raw('count(*) as ukupno'))

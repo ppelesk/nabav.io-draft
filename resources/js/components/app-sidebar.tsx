@@ -114,6 +114,10 @@ const mainNavItems: MainNavItem[] = [
                 href: '/inventura',
             },
             {
+                title: 'Inventurne liste',
+                href: '/inventurna-lista',
+            },
+            {
                 title: 'Izvjestaji',
                 href: '/izvjestaji',
             },
