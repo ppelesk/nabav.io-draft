@@ -33,13 +33,17 @@ type ScanResult = {
 
 export default function InventuraIndex({
     lokacije,
+    liste,
     selectedLokacijaId,
+    selectedListaId,
     stavke,
     summary,
     scanResult,
 }: {
     lokacije: LokacijaOption[];
+    liste: { id_liste: number; naziv_liste: string }[];
     selectedLokacijaId: number | null;
+    selectedListaId: number | null;
     stavke: InventuraStavka[];
     summary: {
         ukupno: number;
@@ -49,118 +53,79 @@ export default function InventuraIndex({
     scanResult: ScanResult | null;
 }) {
     const [activeLokacijaId, setActiveLokacijaId] = useState<number | null>(selectedLokacijaId);
+    const [activeListaId, setActiveListaId] = useState<number | null>(selectedListaId);
     const [manualKod, setManualKod] = useState('');
-    const [isLoadingResult, setIsLoadingResult] = useState(false);
-    const [scannerStatus, setScannerStatus] = useState('Skener nije pokrenut.');
     const [scannerError, setScannerError] = useState<string | null>(null);
+    const [scannerStatus, setScannerStatus] = useState<string>('Skener nije pokrenut.');
     const [isScanning, setIsScanning] = useState(false);
+    const [isLoadingResult, setIsLoadingResult] = useState(false);
 
     const videoRef = useRef<HTMLVideoElement | null>(null);
-    const readerRef = useRef<BrowserMultiFormatReader | null>(null);
-    const isScanningActiveRef = useRef(false);
-    const firstCallbackRef = useRef(false);
-    const lastScannedKodRef = useRef('');
+    const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
 
     useEffect(() => {
-        setActiveLokacijaId(selectedLokacijaId);
-    }, [selectedLokacijaId]);
-
-    const stopScanner = useCallback(() => {
-        isScanningActiveRef.current = false;
-
-        if (readerRef.current) {
-            readerRef.current.reset();
-            readerRef.current = null;
+        if (!codeReaderRef.current) {
+            codeReaderRef.current = new BrowserMultiFormatReader();
         }
-
-        setIsScanning(false);
-        firstCallbackRef.current = false;
     }, []);
 
-    useEffect(() => {
-        return () => {
-            stopScanner();
-        };
-    }, [stopScanner]);
+    const stopScanner = useCallback(() => {
+        if (codeReaderRef.current) {
+            codeReaderRef.current.reset();
+        }
+        setIsScanning(false);
+        setScannerStatus('Skener zaustavljen.');
+    }, []);
 
     const submitScan = useCallback(
         (kod: string) => {
-            const trimmed = kod.trim();
-
-            if (!trimmed || !activeLokacijaId) {
-return;
-}
-
-            if (trimmed === lastScannedKodRef.current) {
-return;
-}
-
-            lastScannedKodRef.current = trimmed;
+            if (!activeLokacijaId || !activeListaId) {
+                setScannerError('Prvo odaberite inventurnu listu i lokaciju/sobu.');
+                return;
+            }
 
             setIsLoadingResult(true);
+            setScannerError(null);
 
             router.post(
                 '/inventura/skeniraj',
-                {
-                    id_lokacije: activeLokacijaId,
-                    kod: trimmed,
-                },
+                { id_lokacije: activeLokacijaId, id_liste: activeListaId, kod },
                 {
                     preserveState: true,
-                    only: ['selectedLokacijaId', 'stavke', 'summary', 'scanResult'],
+                    preserveScroll: true,
                     onSuccess: () => {
                         setIsLoadingResult(false);
                     },
-                    onError: () => {
+                    onError: (errors) => {
                         setIsLoadingResult(false);
+                        setScannerError(errors.kod || 'Doslo je do greske prilikom skeniranja.');
                     },
                 },
             );
-
-            setTimeout(() => {
-                lastScannedKodRef.current = '';
-            }, 2500);
         },
-        [activeLokacijaId],
+        [activeLokacijaId, activeListaId],
     );
 
     const startScanner = useCallback(() => {
-        if (!activeLokacijaId) {
-            setScannerError('Prvo odaberite sobu za inventuru.');
-
+        if (!activeLokacijaId || !activeListaId) {
+            setScannerError('Prvo odaberite inventurnu listu i lokaciju/sobu.');
             return;
         }
+
+        if (!videoRef.current || !codeReaderRef.current) return;
 
         setScannerError(null);
-        setScannerStatus('Pokretanje kamere...');
-        firstCallbackRef.current = false;
+        setScannerStatus('Trazim kameru...');
 
-        if (!videoRef.current) {
-            setScannerError('Video element nije pronaden. Osvjezite stranicu.');
-
-            return;
-        }
-
-        const reader = new BrowserMultiFormatReader();
-        readerRef.current = reader;
-        isScanningActiveRef.current = true;
-
-        reader
+        codeReaderRef.current
             .decodeFromVideoDevice(null, videoRef.current, (result, error) => {
-                if (!isScanningActiveRef.current) {
-                    return;
-                }
-
-                if (!firstCallbackRef.current) {
-                    firstCallbackRef.current = true;
-                    setIsScanning(true);
-                    setScannerStatus('Kamera aktivna - skeniram inventarni broj...');
-                }
-
                 if (result) {
                     const ocitaniKod = result.getText();
-                    setScannerStatus(`Ocitano: ${ocitaniKod}`);
-                    submitScan(ocitaniKod);
+                    setScannerStatus(`Ocitano: ${ocitaniKod}. Saljem na server...`);
+
+                    setTimeout(() => {
+                        submitScan(ocitaniKod);
+                    }, 500);
 
                     return;
                 }
@@ -173,37 +138,42 @@ return;
                     setScannerError(`Greska skenera: ${error.message}`);
                 }
             })
+            .then(() => {
+                setIsScanning(true);
+                setScannerStatus('Skener je aktivan. Usmjerite kameru prema barkodu.');
+            })
             .catch((err: unknown) => {
                 stopScanner();
-
                 const message = err instanceof Error ? err.message : String(err);
-
                 if (message.includes('NotAllowed') || message.includes('Permission')) {
-                    setScannerError('Pristup kameri nije odobren. Odobrite dozvolu u postavkama browsera i pokusajte ponovo.');
-                } else if (message.includes('NotFound')) {
-                    setScannerError('Kamera nije pronadena na uredaju.');
+                    setScannerError('Pristup kameri odbijen. Molimo dozvolite kameru u pregledniku.');
                 } else {
-                    setScannerError(`Kamera nije dostupna: ${message}`);
+                    setScannerError(`Greska pri pokretanju skenera: ${message}`);
                 }
-
-                setScannerStatus('Skener nije pokrenut.');
             });
-    }, [activeLokacijaId, stopScanner, submitScan]);
+    }, [activeLokacijaId, activeListaId, submitScan, stopScanner]);
 
-    const odaberiLokaciju = (event: FormEvent<HTMLFormElement>) => {
+    useEffect(() => {
+        return () => {
+            stopScanner();
+        };
+    }, [stopScanner]);
+
+    const odaberiPostavke = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        if (!activeLokacijaId) {
+        if (!activeLokacijaId || !activeListaId) {
+            setScannerError('Molimo odaberite inventurnu listu i lokaciju.');
             return;
         }
 
         router.get(
             '/inventura',
-            { id_lokacije: activeLokacijaId },
+            { id_lokacije: activeLokacijaId, id_liste: activeListaId },
             {
                 preserveState: true,
                 replace: true,
-                only: ['selectedLokacijaId', 'stavke', 'summary'],
+                only: ['selectedLokacijaId', 'selectedListaId', 'stavke', 'summary'],
             },
         );
     };
@@ -223,17 +193,33 @@ return;
             <div className="space-y-6 p-4">
                 <Heading
                     title="Inventura u hodu"
-                    description="Odaberite sobu i skenirajte inventarne brojeve za potvrdu lokacije"
+                    description="Odaberite inventurnu listu, sobu i skenirajte inventarne brojeve za potvrdu lokacije"
                 />
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>1) Odabir sobe</CardTitle>
+                        <CardTitle>1) Odabir liste i sobe</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <form className="flex flex-col gap-2 md:flex-row" onSubmit={odaberiLokaciju}>
+                        <form className="flex flex-col gap-4 md:flex-row" onSubmit={odaberiPostavke}>
                             <select
-                                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                                className="h-10 rounded-md border border-input bg-background px-3 text-sm flex-1"
+                                value={activeListaId ?? ''}
+                                onChange={(event) => {
+                                    const value = event.target.value;
+                                    setActiveListaId(value ? Number(value) : null);
+                                }}
+                            >
+                                <option value="">Odaberite inventurnu listu...</option>
+                                {liste.map((lista) => (
+                                    <option key={lista.id_liste} value={lista.id_liste}>
+                                        {lista.naziv_liste}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <select
+                                className="h-10 rounded-md border border-input bg-background px-3 text-sm flex-1"
                                 value={activeLokacijaId ?? ''}
                                 onChange={(event) => {
                                     const value = event.target.value;
@@ -249,8 +235,8 @@ return;
                                     </option>
                                 ))}
                             </select>
-                            <Button type="submit" disabled={!activeLokacijaId}>
-                                Ucitaj inventurnu listu
+                            <Button type="submit" disabled={!activeLokacijaId || !activeListaId}>
+                                Ucitaj postavke skeniranja
                             </Button>
                         </form>
                     </CardContent>
@@ -266,16 +252,16 @@ return;
                                 placeholder="Rucni unos inventarnog broja (npr. INV-000123)"
                                 value={manualKod}
                                 onChange={(event) => setManualKod(event.target.value)}
-                                disabled={!activeLokacijaId}
+                                disabled={!activeLokacijaId || !activeListaId}
                             />
-                            <Button type="submit" disabled={!activeLokacijaId || isLoadingResult}>
+                            <Button type="submit" disabled={!activeLokacijaId || !activeListaId || isLoadingResult}>
                                 Potvrdi
                             </Button>
                         </form>
 
                         <div className="flex flex-wrap items-center gap-2">
                             {!isScanning ? (
-                                <Button type="button" variant="secondary" onClick={startScanner} disabled={!activeLokacijaId}>
+                                <Button type="button" variant="secondary" onClick={startScanner} disabled={!activeLokacijaId || !activeListaId}>
                                     Pokreni skener
                                 </Button>
                             ) : (
@@ -340,7 +326,7 @@ return;
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>3) Inventurna lista lokacije</CardTitle>
+                        <CardTitle>3) Imovina na lokaciji</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                         <div className="grid gap-2 text-sm md:grid-cols-3">
@@ -363,7 +349,7 @@ return;
                                     {stavke.length === 0 && (
                                         <tr>
                                             <td className="p-3 text-muted-foreground" colSpan={4}>
-                                                Odaberite sobu za prikaz inventurne liste.
+                                                Nema rezultata.
                                             </td>
                                         </tr>
                                     )}

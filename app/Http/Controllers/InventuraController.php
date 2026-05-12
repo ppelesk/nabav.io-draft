@@ -4,27 +4,33 @@ namespace App\Http\Controllers;
 
 use App\Models\Imovina;
 use App\Models\Lokacija;
+use App\Models\InventurnaLista;
+use App\Models\InventurnaListaStavka;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Auth;
 
 class InventuraController extends Controller
 {
     public function index(Request $request): Response
     {
         $idLokacije = (int) $request->integer('id_lokacije');
+        $idListe = (int) $request->integer('id_liste');
 
-        return $this->renderPage($idLokacije > 0 ? $idLokacije : null, null);
+        return $this->renderPage($idLokacije > 0 ? $idLokacije : null, null, $idListe > 0 ? $idListe : null);
     }
 
     public function skeniraj(Request $request): Response
     {
         $validated = $request->validate([
             'id_lokacije' => ['required', 'integer', 'exists:lokacije,id_lokacije'],
+            'id_liste' => ['required', 'integer', 'exists:inventurne_liste,id_liste'],
             'kod' => ['required', 'string', 'max:255'],
         ]);
 
         $idLokacije = (int) $validated['id_lokacije'];
+        $idListe = (int) $validated['id_liste'];
         $kod = trim((string) $validated['kod']);
 
         if ($kod === '') {
@@ -32,7 +38,16 @@ class InventuraController extends Controller
                 'ok' => false,
                 'kod' => $kod,
                 'message' => 'Kod je prazan.',
-            ]);
+            ], $idListe);
+        }
+
+        $lista = InventurnaLista::where('id_liste', $idListe)->first();
+        if (!$lista || $lista->status_liste !== 'u_tijeku') {
+            return $this->renderPage($idLokacije, [
+                'ok' => false,
+                'kod' => $kod,
+                'message' => 'Odabrana inventurna lista nije pronadjena ili je zavrsena.',
+            ], $idListe);
         }
 
         $stavka = Imovina::query()
@@ -45,7 +60,7 @@ class InventuraController extends Controller
                 'ok' => false,
                 'kod' => $kod,
                 'message' => 'Stavka s tim inventarnim brojem nije pronadena.',
-            ]);
+            ], $idListe);
         }
 
         $prethodnaLokacijaId = $stavka->id_lokacije;
@@ -58,6 +73,15 @@ class InventuraController extends Controller
             'datum_popisa' => now(),
         ]);
 
+        InventurnaListaStavka::create([
+            'id_liste' => $idListe,
+            'id_imovine' => $stavka->id_imovine,
+            'skenirao_korisnik_id' => Auth::id(),
+            'id_lokacije_skeniranja' => $idLokacije,
+            'prethodna_lokacija_id' => $prethodnaLokacijaId,
+            'pronadjeno' => true,
+        ]);
+
         return $this->renderPage($idLokacije, [
             'ok' => true,
             'kod' => $kod,
@@ -65,10 +89,10 @@ class InventuraController extends Controller
             'message' => 'Stavka je uspjesno popisana i potvrdena na odabranoj lokaciji.',
             'premjestena' => $prethodnaLokacijaId !== $idLokacije,
             'prethodna_lokacija' => $prethodnaLokacijaLabel ?: null,
-        ]);
+        ], $idListe);
     }
 
-    private function renderPage(?int $selectedLokacijaId, ?array $scanResult): Response
+    private function renderPage(?int $selectedLokacijaId, ?array $scanResult, ?int $selectedListaId = null): Response
     {
         $lokacije = Lokacija::query()
             ->with('zgrada:id_zgrade,naziv_zgrade')
@@ -81,6 +105,13 @@ class InventuraController extends Controller
                 'naziv_zgrade' => $lokacija->zgrada?->naziv_zgrade,
             ])
             ->all();
+
+        $liste = InventurnaLista::where('status_liste', 'u_tijeku')->get()->map(function ($lista) {
+            return [
+                'id_liste' => $lista->id_liste,
+                'naziv_liste' => $lista->naziv_liste
+            ];
+        });
 
         $stavke = [];
         $summary = [
@@ -125,7 +156,9 @@ class InventuraController extends Controller
 
         return Inertia::render('inventura/index', [
             'lokacije' => $lokacije,
+            'liste' => $liste,
             'selectedLokacijaId' => $selectedLokacijaId,
+            'selectedListaId' => $selectedListaId,
             'stavke' => $stavke,
             'summary' => $summary,
             'scanResult' => $scanResult,
