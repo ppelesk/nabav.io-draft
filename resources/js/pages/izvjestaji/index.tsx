@@ -15,6 +15,12 @@ type SumRow = {
     izdano_na_revers: number;
 };
 
+type InvListSumRow = {
+    ukupno_listi: number;
+    otvorene_liste: number;
+    zavrsene_liste: number;
+};
+
 type GroupRow = {
     naziv_statusa?: string;
     naziv_odjela?: string;
@@ -43,6 +49,7 @@ type StatusRow = {
 
 export default function IzvjestajiIndex({
     sazetak,
+    inventurnaListaSazetak,
     poStatusu,
     poOdjelu,
     poLokaciji,
@@ -52,6 +59,7 @@ export default function IzvjestajiIndex({
     rashodovanaImovina,
 }: {
     sazetak: SumRow;
+    inventurnaListaSazetak: InvListSumRow;
     poStatusu: GroupRow[];
     poOdjelu: GroupRow[];
     poLokaciji: GroupRow[];
@@ -101,6 +109,33 @@ export default function IzvjestajiIndex({
                         </CardHeader>
                         <CardContent className="text-2xl font-semibold">
                             {sazetak.izdano_na_revers}
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">Ukupno inventurnih listi</CardTitle>
+                        </CardHeader>
+                        <CardContent className="text-2xl font-semibold">
+                            {inventurnaListaSazetak.ukupno_listi}
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">Otvorene inventurne liste</CardTitle>
+                        </CardHeader>
+                        <CardContent className="text-2xl font-semibold">
+                            {inventurnaListaSazetak.otvorene_liste}
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">Zavrsene inventurne liste</CardTitle>
+                        </CardHeader>
+                        <CardContent className="text-2xl font-semibold">
+                            {inventurnaListaSazetak.zavrsene_liste}
                         </CardContent>
                     </Card>
                 </div>
