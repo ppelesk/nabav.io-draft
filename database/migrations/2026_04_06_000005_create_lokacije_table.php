@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_zgrade');
             $table->string('oznaka_sobe', 20);
             $table->string('naziv_sobe', 100)->nullable();
+            $table->timestamps();
 
             $table->foreign('id_zgrade')
                 ->references('id_zgrade')

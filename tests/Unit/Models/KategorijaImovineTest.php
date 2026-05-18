@@ -22,3 +22,8 @@ test('kategorija imovine get route key name is id_kategorije', function () {
     $kategorija = new KategorijaImovine();
     expect($kategorija->getRouteKeyName())->toBe('id_kategorije');
 });
+
+test('kategorija imovine uses timestamps', function () {
+    $kategorija = new KategorijaImovine();
+    expect($kategorija->usesTimestamps())->toBeTrue();
+});

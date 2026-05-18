@@ -108,3 +108,8 @@ test('imovina belongs to zaposlenik relationship', function () {
     expect($relation->getForeignKeyName())->toBe('id_zaposlenika');
     expect($relation->getOwnerKeyName())->toBe('id_zaposlenika');
 });
+
+test('imovina uses timestamps', function () {
+    $imovina = new Imovina();
+    expect($imovina->usesTimestamps())->toBeTrue();
+});
