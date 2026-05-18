@@ -1,6 +1,5 @@
 import { Head, router } from '@inertiajs/react';
 import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library';
-import type { FormEvent} from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
@@ -54,7 +53,6 @@ export default function InventuraIndex({
 }) {
     const [activeLokacijaId, setActiveLokacijaId] = useState<number | null>(selectedLokacijaId);
     const [activeListaId, setActiveListaId] = useState<number | null>(selectedListaId);
-    const [manualKod, setManualKod] = useState('');
     const [scannerError, setScannerError] = useState<string | null>(null);
     const [scannerStatus, setScannerStatus] = useState<string>('Skener nije pokrenut.');
     const [isScanning, setIsScanning] = useState(false);
@@ -76,6 +74,27 @@ export default function InventuraIndex({
         setIsScanning(false);
         setScannerStatus('Skener zaustavljen.');
     }, []);
+
+    const updateSettings = useCallback(
+        (newListaId: number | null, newLokacijaId: number | null) => {
+            if (!newListaId || !newLokacijaId) {
+                return;
+            }
+
+            setScannerError(null);
+
+            router.get(
+                '/inventura',
+                { id_lokacije: newLokacijaId, id_liste: newListaId },
+                {
+                    preserveState: true,
+                    replace: true,
+                    only: ['selectedLokacijaId', 'selectedListaId', 'stavke', 'summary'],
+                },
+            );
+        },
+        [],
+    );
 
     const submitScan = useCallback(
         (kod: string) => {
@@ -159,31 +178,6 @@ export default function InventuraIndex({
         };
     }, [stopScanner]);
 
-    const odaberiPostavke = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        if (!activeLokacijaId || !activeListaId) {
-            setScannerError('Molimo odaberite inventurnu listu i lokaciju.');
-            return;
-        }
-
-        router.get(
-            '/inventura',
-            { id_lokacije: activeLokacijaId, id_liste: activeListaId },
-            {
-                preserveState: true,
-                replace: true,
-                only: ['selectedLokacijaId', 'selectedListaId', 'stavke', 'summary'],
-            },
-        );
-    };
-
-    const submitManual = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        submitScan(manualKod);
-        setManualKod('');
-    };
-
     const highlightedId = useMemo(() => scanResult?.id_imovine ?? null, [scanResult]);
 
     return (
@@ -198,67 +192,63 @@ export default function InventuraIndex({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>1) Odabir liste i sobe</CardTitle>
+                        <CardTitle>1) Inventurna lista</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <form className="flex flex-col gap-4 md:flex-row" onSubmit={odaberiPostavke}>
-                            <select
-                                className="h-10 rounded-md border border-input bg-background px-3 text-sm flex-1"
-                                value={activeListaId ?? ''}
-                                onChange={(event) => {
-                                    const value = event.target.value;
-                                    setActiveListaId(value ? Number(value) : null);
-                                }}
-                            >
-                                <option value="">Odaberite inventurnu listu...</option>
-                                {liste.map((lista) => (
-                                    <option key={lista.id_liste} value={lista.id_liste}>
-                                        {lista.naziv_liste}
-                                    </option>
-                                ))}
-                            </select>
+                        <select
+                            className="h-10 rounded-md border border-input bg-background px-3 text-sm w-full"
+                            value={activeListaId ?? ''}
+                            onChange={(event) => {
+                                const value = event.target.value;
+                                const newListaId = value ? Number(value) : null;
 
-                            <select
-                                className="h-10 rounded-md border border-input bg-background px-3 text-sm flex-1"
-                                value={activeLokacijaId ?? ''}
-                                onChange={(event) => {
-                                    const value = event.target.value;
-                                    setActiveLokacijaId(value ? Number(value) : null);
-                                }}
-                            >
-                                <option value="">Odaberite sobu...</option>
-                                {lokacije.map((lokacija) => (
-                                    <option key={lokacija.id_lokacije} value={lokacija.id_lokacije}>
-                                        {lokacija.oznaka_sobe}
-                                        {lokacija.naziv_sobe ? ` - ${lokacija.naziv_sobe}` : ''}
-                                        {lokacija.naziv_zgrade ? ` (${lokacija.naziv_zgrade})` : ''}
-                                    </option>
-                                ))}
-                            </select>
-                            <Button type="submit" disabled={!activeLokacijaId || !activeListaId}>
-                                Ucitaj postavke skeniranja
-                            </Button>
-                        </form>
+                                setActiveListaId(newListaId);
+                                updateSettings(newListaId, activeLokacijaId);
+                            }}
+                        >
+                            <option value="">Odaberite inventurnu listu...</option>
+                            {liste.map((lista) => (
+                                <option key={lista.id_liste} value={lista.id_liste}>
+                                    {lista.naziv_liste}
+                                </option>
+                            ))}
+                        </select>
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>2) Skeniranje u sobi</CardTitle>
+                        <CardTitle>2) Soba</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <select
+                            className="h-10 rounded-md border border-input bg-background px-3 text-sm w-full"
+                            value={activeLokacijaId ?? ''}
+                            onChange={(event) => {
+                                const value = event.target.value;
+                                const newLokacijaId = value ? Number(value) : null;
+
+                                setActiveLokacijaId(newLokacijaId);
+                                updateSettings(activeListaId, newLokacijaId);
+                            }}
+                        >
+                            <option value="">Odaberite sobu...</option>
+                            {lokacije.map((lokacija) => (
+                                <option key={lokacija.id_lokacije} value={lokacija.id_lokacije}>
+                                    {lokacija.oznaka_sobe}
+                                    {lokacija.naziv_sobe ? ` - ${lokacija.naziv_sobe}` : ''}
+                                    {lokacija.naziv_zgrade ? ` (${lokacija.naziv_zgrade})` : ''}
+                                </option>
+                            ))}
+                        </select>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>3) Skeniranje u sobi</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <form className="flex flex-col gap-2 md:flex-row" onSubmit={submitManual}>
-                            <Input
-                                placeholder="Rucni unos inventarnog broja (npr. INV-000123)"
-                                value={manualKod}
-                                onChange={(event) => setManualKod(event.target.value)}
-                                disabled={!activeLokacijaId || !activeListaId}
-                            />
-                            <Button type="submit" disabled={!activeLokacijaId || !activeListaId || isLoadingResult}>
-                                Potvrdi
-                            </Button>
-                        </form>
-
                         <div className="flex flex-wrap items-center gap-2">
                             {!isScanning ? (
                                 <Button type="button" variant="secondary" onClick={startScanner} disabled={!activeLokacijaId || !activeListaId}>
@@ -326,7 +316,7 @@ export default function InventuraIndex({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>3) Imovina na lokaciji</CardTitle>
+                        <CardTitle>4) Imovina sobi</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
                         <div className="grid gap-2 text-sm md:grid-cols-3">

@@ -133,7 +133,10 @@ export default function ImovinaEdit({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="naziv_imovine">Naziv imovine</Label>
+                            <Label htmlFor="naziv_imovine">
+                                Naziv imovine
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Input
                                 id="naziv_imovine"
                                 maxLength={150}
@@ -167,7 +170,10 @@ export default function ImovinaEdit({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="datum_nabave">Datum nabave</Label>
+                            <Label htmlFor="datum_nabave">
+                                Datum nabave
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Input
                                 id="datum_nabave"
                                 type="date"
@@ -179,7 +185,10 @@ export default function ImovinaEdit({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="cijena">Cijena</Label>
+                            <Label htmlFor="cijena">
+                                Cijena
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Input
                                 id="cijena"
                                 type="number"
@@ -193,7 +202,10 @@ export default function ImovinaEdit({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="jamstvo_mjeseci">Jamstvo (mjeseci)</Label>
+                            <Label htmlFor="jamstvo_mjeseci">
+                                Jamstvo (mjeseci)
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Input
                                 id="jamstvo_mjeseci"
                                 type="number"
@@ -220,10 +232,14 @@ export default function ImovinaEdit({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="id_kategorije">Kategorija</Label>
+                            <Label htmlFor="id_kategorije">
+                                Kategorija
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Select
                                 value={data.id_kategorije}
                                 onValueChange={(value) => setData('id_kategorije', value)}
+                                required
                             >
                                 <SelectTrigger id="id_kategorije">
                                     <SelectValue placeholder="Odaberite kategoriju" />
@@ -243,10 +259,14 @@ export default function ImovinaEdit({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="id_statusa">Status</Label>
+                            <Label htmlFor="id_statusa">
+                                Status
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Select
                                 value={data.id_statusa}
                                 onValueChange={(value) => setData('id_statusa', value)}
+                                required
                             >
                                 <SelectTrigger id="id_statusa">
                                     <SelectValue placeholder="Odaberite status" />
@@ -289,12 +309,16 @@ export default function ImovinaEdit({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="id_lokacije">Lokacija</Label>
+                            <Label htmlFor="id_lokacije">
+                                Lokacija
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Select
                                 value={data.id_lokacije || 'none'}
                                 onValueChange={(value) =>
                                     setData('id_lokacije', value === 'none' ? '' : value)
                                 }
+                                required
                             >
                                 <SelectTrigger id="id_lokacije">
                                     <SelectValue placeholder="Odaberite lokaciju" />

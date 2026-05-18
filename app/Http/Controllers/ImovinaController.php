@@ -82,7 +82,7 @@ class ImovinaController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         return Inertia::render('imovina/create', [
             'statusi' => $this->statusiOptions(),
@@ -90,6 +90,7 @@ class ImovinaController extends Controller
             'odjeli' => $this->odjeliOptions(),
             'lokacije' => $this->lokacijeOptions(),
             'zaposlenici' => $this->zaposleniciOptions(),
+            'selectedZaposlenik' => $request->input('id_zaposlenika'),
         ]);
     }
 

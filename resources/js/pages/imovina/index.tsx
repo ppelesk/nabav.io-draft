@@ -77,6 +77,10 @@ type ZaduzenjeForm = {
     prezime_zaposlenika: string;
 };
 
+type RazduzenjeForm = {
+    datum_razduzenja: string;
+};
+
 export default function ImovinaIndex({
     imovina,
     filters,
@@ -137,6 +141,19 @@ export default function ImovinaIndex({
         [zaduzenjeData.id_zaposlenika],
     );
 
+    const [odabranaImovinaZaRazduzenje, setOdabranaImovinaZaRazduzenje] = useState<Imovina | null>(null);
+    const {
+        data: razduzenjeData,
+        setData: setRazduzenjeData,
+        patch: patchRazduzenje,
+        processing: razduzenjeProcessing,
+        errors: razduzenjeErrors,
+        clearErrors: clearRazduzenjeErrors,
+        reset: resetRazduzenje,
+    } = useForm<RazduzenjeForm>({
+        datum_razduzenja: '',
+    });
+
     const obrisi = (idImovine: number) => {
         if (!window.confirm('Jeste li sigurni da zelite obrisati stavku imovine?')) {
             return;
@@ -145,12 +162,36 @@ export default function ImovinaIndex({
         router.delete(`/imovina/${idImovine}`);
     };
 
-    const oznaciPopisanu = (idImovine: number) => {
-        router.patch(`/imovina/${idImovine}/popisano`);
+    const otvoriRazduzenje = (stavka: Imovina) => {
+        setOdabranaImovinaZaRazduzenje(stavka);
+        clearRazduzenjeErrors();
+        resetRazduzenje();
+        setRazduzenjeData('datum_razduzenja', new Date().toISOString().slice(0, 10));
     };
 
-    const razduzi = (idImovine: number) => {
-        router.patch(`/imovina/${idImovine}/razduzi`);
+    const zatvoriRazduzenje = () => {
+        setOdabranaImovinaZaRazduzenje(null);
+        clearRazduzenjeErrors();
+        resetRazduzenje();
+    };
+
+    const submitRazduzenje = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        if (!odabranaImovinaZaRazduzenje) {
+            return;
+        }
+
+        patchRazduzenje(`/imovina/${odabranaImovinaZaRazduzenje.id_imovine}/razduzi`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                zatvoriRazduzenje();
+            },
+        });
+    };
+
+    const oznaciPopisanu = (idImovine: number) => {
+        router.patch(`/imovina/${idImovine}/popisano`);
     };
 
     const otvoriZaduzenje = (stavka: Imovina) => {
@@ -393,7 +434,7 @@ export default function ImovinaIndex({
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"
-                                                                onClick={() => razduzi(stavka.id_imovine)}
+                                                                onClick={() => otvoriRazduzenje(stavka)}
                                                             >
                                                                 Razduzi
                                                             </Button>
@@ -543,6 +584,50 @@ export default function ImovinaIndex({
                                 </Button>
                                 <Button type="submit" disabled={zaduzenjeProcessing}>
                                     Potvrdi zaduzenje
+                                </Button>
+                            </div>
+                        </form>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog
+                    open={odabranaImovinaZaRazduzenje !== null}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            zatvoriRazduzenje();
+                        }
+                    }}
+                >
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>Razduzenje imovine</DialogTitle>
+                            <DialogDescription>
+                                {odabranaImovinaZaRazduzenje
+                                    ? `Razduzujete: ${odabranaImovinaZaRazduzenje.naziv_imovine}`
+                                    : 'Unesite datum vracanja imovine.'}
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <form className="space-y-4" onSubmit={submitRazduzenje}>
+                            <div className="grid gap-2">
+                                <Label htmlFor="datum_razduzenja">Datum vracanja</Label>
+                                <Input
+                                    id="datum_razduzenja"
+                                    type="date"
+                                    value={razduzenjeData.datum_razduzenja}
+                                    onChange={(event) =>
+                                        setRazduzenjeData('datum_razduzenja', event.target.value)
+                                    }
+                                />
+                                <InputError message={razduzenjeErrors.datum_razduzenja} />
+                            </div>
+
+                            <div className="flex justify-end gap-2">
+                                <Button type="button" variant="outline" onClick={zatvoriRazduzenje}>
+                                    Odustani
+                                </Button>
+                                <Button type="submit" disabled={razduzenjeProcessing}>
+                                    Potvrdi razduzenje
                                 </Button>
                             </div>
                         </form>

@@ -89,4 +89,5 @@ Route::middleware(['auth', 'verified', 'can:upravitelj_imovinom'])->group(functi
     Route::post('/inventurna-lista', [InventurnaListaController::class, 'store'])->name('inventurna-lista.store');
     Route::get('/inventurna-lista/{lista}', [InventurnaListaController::class, 'show'])->name('inventurna-lista.show');
     Route::post('/inventurna-lista/{lista}/skeniraj', [InventurnaListaController::class, 'skeniraj'])->name('inventurna-lista.skeniraj');
+    Route::patch('/inventurna-lista/{lista}/zakljucaj', [InventurnaListaController::class, 'zakljucaj'])->name('inventurna-lista.zakljucaj');
 });
