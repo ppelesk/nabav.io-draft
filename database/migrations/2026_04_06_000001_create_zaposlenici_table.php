@@ -16,6 +16,7 @@ return new class extends Migration
             $table->char('oib_zaposlenika', 11)->unique();
             $table->string('ime_zaposlenika');
             $table->string('prezime_zaposlenika');
+            $table->timestamps();
         });
     }
 

@@ -36,3 +36,8 @@ test('zgrada has many lokacije relationship', function () {
     expect($relation->getForeignKeyName())->toBe('id_zgrade');
     expect($relation->getLocalKeyName())->toBe('id_zgrade');
 });
+
+test('zgrada uses timestamps', function () {
+    $zgrada = new Zgrada();
+    expect($zgrada->usesTimestamps())->toBeTrue();
+});
