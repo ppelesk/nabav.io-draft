@@ -37,3 +37,8 @@ test('lokacija belongs to zgrada relationship', function () {
     expect($relation->getForeignKeyName())->toBe('id_zgrade');
     expect($relation->getOwnerKeyName())->toBe('id_zgrade');
 });
+
+test('lokacija uses timestamps', function () {
+    $lokacija = new Lokacija();
+    expect($lokacija->usesTimestamps())->toBeTrue();
+});

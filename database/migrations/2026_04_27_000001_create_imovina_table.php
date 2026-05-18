@@ -31,6 +31,7 @@ return new class extends Migration
             $table->date('datum_zaduzenja')->nullable();
             $table->date('datum_razduzenja')->nullable();
             $table->timestamp('datum_popisa')->nullable();
+            $table->timestamps();
 
             $table->foreign('id_kategorije')
                 ->references('id_kategorije')

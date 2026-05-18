@@ -31,3 +31,8 @@ test('funkcija has many auditZapisi relationship', function () {
     expect($relation->getForeignKeyName())->toBe('id_funkcije');
     expect($relation->getLocalKeyName())->toBe('id_funkcije');
 });
+
+test('funkcija uses timestamps', function () {
+    $funkcija = new Funkcija();
+    expect($funkcija->usesTimestamps())->toBeTrue();
+});

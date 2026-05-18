@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('odjeli', function (Blueprint $table) {
             $table->bigIncrements('id_odjela');
             $table->string('naziv_odjela', 100);
+            $table->timestamps();
         });
     }
 
