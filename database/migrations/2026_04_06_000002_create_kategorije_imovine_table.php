@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('kategorije_imovine', function (Blueprint $table) {
             $table->bigIncrements('id_kategorije');
             $table->string('naziv_kategorije', 100);
+            $table->timestamps();
         });
     }
 

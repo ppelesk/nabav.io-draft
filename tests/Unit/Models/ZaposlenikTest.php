@@ -26,3 +26,8 @@ test('zaposlenik get route key name is id_zaposlenika', function () {
     $zaposlenik = new Zaposlenik();
     expect($zaposlenik->getRouteKeyName())->toBe('id_zaposlenika');
 });
+
+test('zaposlenik uses timestamps', function () {
+    $zaposlenik = new Zaposlenik();
+    expect($zaposlenik->usesTimestamps())->toBeTrue();
+});

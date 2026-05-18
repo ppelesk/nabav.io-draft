@@ -22,3 +22,8 @@ test('status imovine get route key name is id_statusa', function () {
     $status = new StatusImovine();
     expect($status->getRouteKeyName())->toBe('id_statusa');
 });
+
+test('status imovine uses timestamps', function () {
+    $status = new StatusImovine();
+    expect($status->usesTimestamps())->toBeTrue();
+});

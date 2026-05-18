@@ -22,3 +22,8 @@ test('odjel get route key name is id_odjela', function () {
     $odjel = new Odjel();
     expect($odjel->getRouteKeyName())->toBe('id_odjela');
 });
+
+test('odjel uses timestamps', function () {
+    $odjel = new Odjel();
+    expect($odjel->usesTimestamps())->toBeTrue();
+});
