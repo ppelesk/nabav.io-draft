@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import type { FormEvent} from 'react';
 import { useMemo, useState } from 'react';
 import Heading from '@/components/heading';
@@ -65,6 +65,8 @@ export default function ImovinaZaduzenja({
 }) {
     const [odabranaImovinaZaZaduzenje, setOdabranaImovinaZaZaduzenje] = useState<Imovina | null>(null);
     const [odabranaImovinaZaRazduzenje, setOdabranaImovinaZaRazduzenje] = useState<Imovina | null>(null);
+    const [otvoriDodajZaduzenje, setOtvoriDodajZaduzenje] = useState(false);
+    const [izabranaImovinaZaDodavanje, setIzabranaImovinaZaDodavanje] = useState<string>('');
     const {
         data,
         setData,
@@ -92,6 +94,7 @@ export default function ImovinaZaduzenja({
         datum_razduzenja: '',
     });
 
+    const [selectedZaposlenikZaKreiranje, setSelectedZaposlenikZaKreiranje] = useState<string>('');
     const koristiNoviUnos = useMemo(() => data.id_zaposlenika === 'new', [data.id_zaposlenika]);
     const naslov = mode === 'zaduzenje' ? 'Zaduzenje imovine' : 'Razduzenje imovine';
     const opis = mode === 'zaduzenje'
@@ -109,6 +112,20 @@ export default function ImovinaZaduzenja({
 
     const zatvoriZaduzenje = () => {
         setOdabranaImovinaZaZaduzenje(null);
+        clearErrors();
+        reset();
+    };
+
+    const otvoriModalDodajZaduzenje = () => {
+        setOtvoriDodajZaduzenje(true);
+        setIzabranaImovinaZaDodavanje('');
+        clearErrors();
+        reset();
+    };
+
+    const zatvoriModalDodajZaduzenje = () => {
+        setOtvoriDodajZaduzenje(false);
+        setIzabranaImovinaZaDodavanje('');
         clearErrors();
         reset();
     };
@@ -156,6 +173,21 @@ export default function ImovinaZaduzenja({
         });
     };
 
+    const submitDodajZaduzenje = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        if (!izabranaImovinaZaDodavanje) {
+            return;
+        }
+
+        patch(`/imovina/${izabranaImovinaZaDodavanje}/zaduzi`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                zatvoriModalDodajZaduzenje();
+            },
+        });
+    };
+
     return (
         <>
             <Head title={naslov} />
@@ -166,7 +198,7 @@ export default function ImovinaZaduzenja({
                     description={opis}
                 />
 
-                <div className="flex justify-end gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2">
                     <Button asChild variant="outline">
                         <Link href="/imovina">Puni popis imovine</Link>
                     </Button>
@@ -182,7 +214,11 @@ export default function ImovinaZaduzenja({
                     <Button asChild>
                         <Link href="/imovina/create">Dodaj imovinu</Link>
                     </Button>
+                    {mode === 'zaduzenje' && (
+                        <Button onClick={otvoriModalDodajZaduzenje}>Dodaj zaduženje</Button>
+                    )}
                 </div>
+                
 
                 <Card>
                     <CardHeader>
@@ -271,6 +307,152 @@ export default function ImovinaZaduzenja({
                 </Card>
 
                 <Dialog
+                    open={otvoriDodajZaduzenje}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            zatvoriModalDodajZaduzenje();
+                        }
+                    }}
+                >
+                    <DialogContent className="sm:max-w-lg">
+                        <DialogHeader>
+                            <DialogTitle>Dodaj zaduženje</DialogTitle>
+                            <DialogDescription>
+                                Odaberite slobodnu stavku, zaposlenika ili stvorite novog zaposlenika bez napuštanja stranice.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <form className="space-y-4" onSubmit={submitDodajZaduzenje}>
+                            <div className="grid gap-2">
+                                <Label htmlFor="izabrana_imovina">
+                                    Stavka za zaduženje
+                                    <span className="text-destructive ml-1">*</span>
+                                </Label>
+                                <Select
+                                    value={izabranaImovinaZaDodavanje || 'none'}
+                                    onValueChange={(value) =>
+                                        setIzabranaImovinaZaDodavanje(value === 'none' ? '' : value)
+                                    }
+                                >
+                                    <SelectTrigger id="izabrana_imovina">
+                                        <SelectValue placeholder="Odaberite stavku" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">Odaberite</SelectItem>
+                                        {filtriranaImovina.map((stavka) => (
+                                            <SelectItem
+                                                key={stavka.id_imovine}
+                                                value={String(stavka.id_imovine)}
+                                            >
+                                                {stavka.inventarni_broj ?? '-'} - {stavka.naziv_imovine}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="id_zaposlenika">
+                                    Zaposlenik
+                                    <span className="text-destructive ml-1">*</span>
+                                </Label>
+                                <Select
+                                    value={data.id_zaposlenika || 'none'}
+                                    required
+                                    onValueChange={(value) => {
+                                        const vrijednost = value === 'none' ? '' : value;
+
+                                        setData('id_zaposlenika', vrijednost);
+
+                                        if (value !== 'new') {
+                                            setData('oib_zaposlenika', '');
+                                            setData('ime_zaposlenika', '');
+                                            setData('prezime_zaposlenika', '');
+                                        }
+                                    }}
+                                >
+                                    <SelectTrigger id="id_zaposlenika">
+                                        <SelectValue placeholder="Odaberite zaposlenika" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">Odaberite</SelectItem>
+                                        {zaposlenici.map((zaposlenik) => (
+                                            <SelectItem
+                                                key={zaposlenik.id_zaposlenika}
+                                                value={String(zaposlenik.id_zaposlenika)}
+                                            >
+                                                {zaposlenik.ime_zaposlenika} {zaposlenik.prezime_zaposlenika}
+                                            </SelectItem>
+                                        ))}
+                                        <SelectItem value="new">+ Kreiraj novog zaposlenika</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={errors.id_zaposlenika} />
+                            </div>
+
+                            {koristiNoviUnos && (
+                                <div className="grid gap-3 rounded-md border p-3">
+                                    <p className="text-sm font-medium">Novi zaposlenik</p>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="oib_zaposlenika">OIB</Label>
+                                        <Input
+                                            id="oib_zaposlenika"
+                                            inputMode="numeric"
+                                            maxLength={11}
+                                            value={data.oib_zaposlenika}
+                                            onChange={(event) => setData('oib_zaposlenika', event.target.value)}
+                                        />
+                                        <InputError message={errors.oib_zaposlenika} />
+                                    </div>
+
+                                    <div className="grid gap-2 md:grid-cols-2">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="ime_zaposlenika">Ime</Label>
+                                            <Input
+                                                id="ime_zaposlenika"
+                                                value={data.ime_zaposlenika}
+                                                onChange={(event) => setData('ime_zaposlenika', event.target.value)}
+                                            />
+                                            <InputError message={errors.ime_zaposlenika} />
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="prezime_zaposlenika">Prezime</Label>
+                                            <Input
+                                                id="prezime_zaposlenika"
+                                                value={data.prezime_zaposlenika}
+                                                onChange={(event) => setData('prezime_zaposlenika', event.target.value)}
+                                            />
+                                            <InputError message={errors.prezime_zaposlenika} />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="datum_zaduzenja">Datum zaduzenja (opcionalno)</Label>
+                                <Input
+                                    id="datum_zaduzenja"
+                                    type="date"
+                                    value={data.datum_zaduzenja}
+                                    onChange={(event) => setData('datum_zaduzenja', event.target.value)}
+                                />
+                                <InputError message={errors.datum_zaduzenja} />
+                            </div>
+
+                            <div className="flex justify-end gap-2">
+                                <Button type="button" variant="outline" onClick={zatvoriModalDodajZaduzenje}>
+                                    Odustani
+                                </Button>
+                                <Button type="submit" disabled={processing || !izabranaImovinaZaDodavanje}>
+                                    Dodaj zaduženje
+                                </Button>
+                            </div>
+                        </form>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog
                     open={odabranaImovinaZaZaduzenje !== null}
                     onOpenChange={(open) => {
                         if (!open) {
@@ -290,9 +472,13 @@ export default function ImovinaZaduzenja({
 
                         <form className="space-y-4" onSubmit={submitZaduzenje}>
                             <div className="grid gap-2">
-                                <Label htmlFor="id_zaposlenika">Zaposlenik</Label>
+                                <Label htmlFor="id_zaposlenika">
+                                    Zaposlenik
+                                    <span className="text-destructive ml-1">*</span>
+                                </Label>
                                 <Select
                                     value={data.id_zaposlenika || 'none'}
+                                    required
                                     onValueChange={(value) => {
                                         const vrijednost = value === 'none' ? '' : value;
 

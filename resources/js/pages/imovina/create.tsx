@@ -53,12 +53,14 @@ export default function ImovinaCreate({
     odjeli,
     lokacije,
     zaposlenici,
+    selectedZaposlenik,
 }: {
     statusi: Option[];
     kategorije: Option[];
     odjeli: Option[];
     lokacije: Option[];
     zaposlenici: Option[];
+    selectedZaposlenik?: number | string | null;
 }) {
     const { data, setData, post, processing, errors } = useForm<ImovinaForm>({
         inventarni_broj: '',
@@ -73,7 +75,7 @@ export default function ImovinaCreate({
         id_statusa: '',
         id_odjela: '',
         id_lokacije: '',
-        id_zaposlenika: '',
+        id_zaposlenika: selectedZaposlenik ? String(selectedZaposlenik) : '',
         na_revers: '0',
         datum_zaduzenja: '',
         datum_razduzenja: '',
@@ -106,7 +108,10 @@ export default function ImovinaCreate({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="naziv_imovine">Naziv imovine</Label>
+                            <Label htmlFor="naziv_imovine">
+                                Naziv imovine
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Input
                                 id="naziv_imovine"
                                 maxLength={150}
@@ -140,7 +145,10 @@ export default function ImovinaCreate({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="datum_nabave">Datum nabave</Label>
+                            <Label htmlFor="datum_nabave">
+                                Datum nabave
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Input
                                 id="datum_nabave"
                                 type="date"
@@ -152,7 +160,10 @@ export default function ImovinaCreate({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="cijena">Cijena</Label>
+                            <Label htmlFor="cijena">
+                                Cijena
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Input
                                 id="cijena"
                                 type="number"
@@ -166,7 +177,10 @@ export default function ImovinaCreate({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="jamstvo_mjeseci">Jamstvo (mjeseci)</Label>
+                            <Label htmlFor="jamstvo_mjeseci">
+                                Jamstvo (mjeseci)
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Input
                                 id="jamstvo_mjeseci"
                                 type="number"
@@ -193,12 +207,16 @@ export default function ImovinaCreate({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="id_kategorije">Kategorija</Label>
+                            <Label htmlFor="id_kategorije">
+                                Kategorija
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Select
                                 value={data.id_kategorije || 'none'}
                                 onValueChange={(value) =>
                                     setData('id_kategorije', value === 'none' ? '' : value)
                                 }
+                                required
                             >
                                 <SelectTrigger id="id_kategorije">
                                     <SelectValue placeholder="Odaberite kategoriju" />
@@ -219,12 +237,16 @@ export default function ImovinaCreate({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="id_statusa">Status</Label>
+                            <Label htmlFor="id_statusa">
+                                Status
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Select
                                 value={data.id_statusa || 'none'}
                                 onValueChange={(value) =>
                                     setData('id_statusa', value === 'none' ? '' : value)
                                 }
+                                required
                             >
                                 <SelectTrigger id="id_statusa">
                                     <SelectValue placeholder="Odaberite status" />
@@ -268,7 +290,10 @@ export default function ImovinaCreate({
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="id_lokacije">Lokacija</Label>
+                            <Label htmlFor="id_lokacije">
+                                Lokacija
+                                <span className="text-destructive ml-1">*</span>
+                            </Label>
                             <Select
                                 required
                                 value={data.id_lokacije || ''}
@@ -320,19 +345,7 @@ export default function ImovinaCreate({
                             <InputError message={errors.id_zaposlenika} />
                         </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="na_revers">Izdana na revers</Label>
-                            <Select value={data.na_revers} onValueChange={(value) => setData('na_revers', value)}>
-                                <SelectTrigger id="na_revers">
-                                    <SelectValue placeholder="Odaberite" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="0">Ne</SelectItem>
-                                    <SelectItem value="1">Da</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <InputError message={errors.na_revers} />
-                        </div>
+            
 
                         <div className="grid gap-2">
                             <Label htmlFor="datum_zaduzenja">Datum zaduzenja</Label>

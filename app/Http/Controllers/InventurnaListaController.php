@@ -40,6 +40,17 @@ class InventurnaListaController extends Controller
         return redirect()->route('inventurna-lista.show', $lista->id_liste);
     }
 
+    public function zakljucaj(InventurnaLista $lista)
+    {
+        if ($lista->status_liste !== 'u_tijeku') {
+            return back()->with('error', 'Lista je vec zakljucana ili nije moguca za zakljucavanje.');
+        }
+
+        $lista->update(['status_liste' => 'zavrsena']);
+
+        return back()->with('success', 'Inventurna lista je zakljucana.');
+    }
+
     public function show(InventurnaLista $lista): Response
     {
         $lista->load(['stavke.imovina', 'stavke.skeniraoKorisnik', 'stavke.lokacijaSkeniranja', 'stavke.prethodnaLokacija']);

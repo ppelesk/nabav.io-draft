@@ -5,6 +5,7 @@ import {
     FolderGit2,
     LayoutGrid,
     Network,
+    Search,
     Tags,
     Users,
 } from 'lucide-react';
@@ -84,18 +85,10 @@ const mainNavItems: MainNavItem[] = [
         title: 'Upravljanje imovinom',
         icon: Network,
         items: [
+
             {
-                title: 'CRUD imovine',
-                items: [
-                    {
-                        title: 'Popis imovine',
-                        href: '/imovina',
-                    },
-                    {
-                        title: 'Dodaj imovinu',
-                        href: '/imovina/create',
-                    },
-                ],
+                title: 'Popis imovine',
+                href: '/imovina',
             },
             {
                 title: 'Zaduzenje imovine',
@@ -110,6 +103,18 @@ const mainNavItems: MainNavItem[] = [
                 href: '/imovina/barkod-naljepnice',
             },
             {
+                title: 'Provjera barkoda',
+                href: '/provjera-barkoda',
+            },
+        ],
+    },
+
+    {
+        title: 'Inventura',
+        icon: Search,
+        items: [
+            
+                        {
                 title: 'Inventura',
                 href: '/inventura',
             },
@@ -117,9 +122,18 @@ const mainNavItems: MainNavItem[] = [
                 title: 'Inventurne liste',
                 href: '/inventurna-lista',
             },
-            {
-                title: 'Izvještaji',
-                items: [
+        
+ 
+        ],
+    },
+
+    {
+        title: 'Izvještaji',
+        icon: LayoutGrid,
+        items: [
+            
+            
+
                     { title: 'Izvještaj o provedenoj inventuri', href: '/izvjestaji/provedena-inventura' },
                     { title: 'Izvještaj o stanju imovine', href: '/izvjestaji/stanje-imovine' },
                     { title: 'Izvještaj o izdanoj imovini', href: '/izvjestaji/izdana-imovina' },
@@ -131,25 +145,18 @@ const mainNavItems: MainNavItem[] = [
                     { title: 'Izvještaj o rashodovanoj imovini', href: '/izvjestaji/rashodovana-imovina' },
                     { title: 'Izvještaj iz revizijskog traga', href: '/izvjestaji/revizijski-trag' },
                     { title: 'Izvještaj o imovini izdanoj na revers', href: '/izvjestaji/imovina-na-revers' },
-                ],
-            },
-            {
-                title: 'Provjera barkoda',
-                href: '/provjera-barkoda',
-            },
+            
+        
+ 
         ],
     },
 ];
 
 const footerNavItems: NavItem[] = [
+
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
+        title: 'Korisnička uputa (u izradi)',
+        href: '#',
         icon: BookOpen,
     },
 ];

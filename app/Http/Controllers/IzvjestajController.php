@@ -19,11 +19,22 @@ class IzvjestajController extends Controller
 
     public function provedenaInventura()
     {
-        $liste = InventurnaLista::with('kreator')->latest('created_at')->get();
+        $liste = InventurnaLista::with([
+            'kreator',
+            'stavke.imovina',
+            'stavke.skeniraoKorisnik',
+            'stavke.lokacijaSkeniranja',
+            'stavke.prethodnaLokacija',
+        ])
+            ->where('status_liste', 'zavrsena')
+            ->latest('created_at')
+            ->get();
+
         if (request()->has('pdf')) {
             $pdf = Pdf::loadView('pdf.provedena-inventura', compact('liste'));
             return $pdf->download('izvjestaj_provedena_inventura.pdf');
         }
+
         return Inertia::render('izvjestaji/provedena-inventura', ['liste' => $liste]);
     }
 
@@ -82,9 +93,11 @@ class IzvjestajController extends Controller
 
     public function imovinaUSkladistu()
     {
-        $imovina = Imovina::whereHas('status', function ($query) {
-            $query->where('naziv_statusa', 'like', '%skladište%')->orWhere('naziv_statusa', 'like', '%skladiste%');
-        })->get();
+        $imovina = Imovina::with(['status', 'kategorija', 'lokacija'])
+            ->whereHas('status', function ($query) {
+                $query->where('naziv_statusa', 'like', '%skladište%')->orWhere('naziv_statusa', 'like', '%skladiste%');
+            })
+            ->get();
         if (request()->has('pdf')) {
             $pdf = Pdf::loadView('pdf.imovina-u-skladistu', compact('imovina'));
             return $pdf->download('izvjestaj_imovina_u_skladistu.pdf');
@@ -94,9 +107,11 @@ class IzvjestajController extends Controller
 
     public function imovinaNaServisu()
     {
-        $imovina = Imovina::whereHas('status', function ($query) {
-            $query->where('naziv_statusa', 'like', '%servis%');
-        })->get();
+        $imovina = Imovina::with(['status', 'lokacija', 'odjel'])
+            ->whereHas('status', function ($query) {
+                $query->where('naziv_statusa', 'like', '%servis%');
+            })
+            ->get();
         if (request()->has('pdf')) {
             $pdf = Pdf::loadView('pdf.imovina-na-servisu', compact('imovina'));
             return $pdf->download('izvjestaj_imovina_na_servisu.pdf');
@@ -106,9 +121,11 @@ class IzvjestajController extends Controller
 
     public function rashodovanaImovina()
     {
-        $imovina = Imovina::whereHas('status', function ($query) {
-            $query->where('naziv_statusa', 'like', '%rashod%')->orWhere('naziv_statusa', 'like', '%unist%');
-        })->get();
+        $imovina = Imovina::with(['status', 'kategorija', 'lokacija'])
+            ->whereHas('status', function ($query) {
+                $query->where('naziv_statusa', 'like', '%rashod%')->orWhere('naziv_statusa', 'like', '%unist%');
+            })
+            ->get();
         if (request()->has('pdf')) {
             $pdf = Pdf::loadView('pdf.rashodovana-imovina', compact('imovina'));
             return $pdf->download('izvjestaj_rashodovana_imovina.pdf');
@@ -128,7 +145,7 @@ class IzvjestajController extends Controller
 
     public function imovinaNaRevers()
     {
-        $imovina = Imovina::with('zaposlenik')
+        $imovina = Imovina::with(['zaposlenik', 'status'])
             ->where('na_revers', true)
             ->whereNotNull('id_zaposlenika')
             ->get();
