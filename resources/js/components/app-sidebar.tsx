@@ -35,6 +35,7 @@ const mainNavItems: MainNavItem[] = [
     {
         title: 'Administracija sustava',
         icon: Users,
+        roles: ['administrator_sustava'],
         items: [
             {
                 title: 'Šifrarnici',
@@ -84,6 +85,7 @@ const mainNavItems: MainNavItem[] = [
     {
         title: 'Upravljanje imovinom',
         icon: Network,
+        roles: ['administrator_sustava', 'upravitelj_imovinom'],
         items: [
 
             {

@@ -31,8 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 });
 
-Route::middleware(['auth', 'verified', 'can:korisnik'])->group(function () {
-
+Route::middleware(['auth', 'verified', 'can:administrator_sustava'])->group(function () {
     Route::get('audit-log', [AuditLogController::class, 'index'])->name('audit-log.index');
     Route::resource('kategorije-imovine', KategorijaImovineController::class);
     Route::resource('korisnici', KorisnikController::class);
@@ -42,16 +41,17 @@ Route::middleware(['auth', 'verified', 'can:korisnik'])->group(function () {
     Route::resource('uloge', UlogaController::class);
     Route::resource('zaposlenici', ZaposlenikController::class);
     Route::resource('zgrade', ZgradaController::class);
+    Route::post('korisnici/{korisnici}/resend-invite', [KorisnikController::class, 'resendInvite'])
+        ->name('korisnici.resend-invite');
+});
+
+Route::middleware(['auth', 'verified', 'can:upravitelj_imovinom'])->group(function () {
     Route::get('imovina/zaduzenje', [ImovinaController::class, 'zaduzenje'])
         ->name('imovina.zaduzenje');
     Route::get('imovina/razduzenje', [ImovinaController::class, 'razduzenje'])
         ->name('imovina.razduzenje');
     Route::get('imovina/barkod-naljepnice', [ImovinaController::class, 'barkodNaljepnice'])
         ->name('imovina.barkod-naljepnice');
-    Route::get('inventura', [InventuraController::class, 'index'])
-        ->name('inventura.index');
-    Route::post('inventura/skeniraj', [InventuraController::class, 'skeniraj'])
-        ->name('inventura.skeniraj');
     Route::resource('imovina', ImovinaController::class);
     Route::patch('imovina/{imovina}/popisano', [ImovinaController::class, 'oznaciPopisanu'])
         ->name('imovina.popisano');
@@ -59,6 +59,13 @@ Route::middleware(['auth', 'verified', 'can:korisnik'])->group(function () {
         ->name('imovina.zaduzi');
     Route::patch('imovina/{imovina}/razduzi', [ImovinaController::class, 'razduzi'])
         ->name('imovina.razduzi');
+});
+
+Route::middleware(['auth', 'verified', 'can:korisnik'])->group(function () {
+    Route::get('inventura', [InventuraController::class, 'index'])
+        ->name('inventura.index');
+    Route::post('inventura/skeniraj', [InventuraController::class, 'skeniraj'])
+        ->name('inventura.skeniraj');
 
     Route::prefix('izvjestaji')->name('izvjestaji.')->group(function () {
         Route::get('/', [IzvjestajController::class, 'index'])->name('index');
@@ -76,9 +83,6 @@ Route::middleware(['auth', 'verified', 'can:korisnik'])->group(function () {
     });
     Route::get('provjera-barkoda', [ProvjeraBarkodaController::class, 'index'])
         ->name('provjera-barkoda.index');
-
-    Route::post('korisnici/{korisnici}/resend-invite', [KorisnikController::class, 'resendInvite'])
-        ->name('korisnici.resend-invite');
 });
 
 require __DIR__.'/settings.php';

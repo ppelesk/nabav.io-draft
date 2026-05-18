@@ -15,16 +15,40 @@ import {
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 
+import { usePage } from '@inertiajs/react';
+import type { SharedData } from '@/types';
+
 export type MainNavItem = {
     title: string;
     href?: NonNullable<InertiaLinkProps['href']>;
     icon?: ComponentType<{ className?: string }> | null;
     disabled?: boolean;
     items?: MainNavItem[];
+    roles?: string[]; // Array of role codes (sifra_uloge) allowed to see this item
 };
 
 export function NavMain({ items = [] }: { items: MainNavItem[] }) {
     const { isCurrentUrl, isCurrentOrParentUrl } = useCurrentUrl();
+    const { auth } = usePage<SharedData>().props;
+    const userRole = auth.sifra_uloge;
+
+    const filterByRole = (item: MainNavItem) => {
+        if (!item.roles) return true;
+        if (!userRole) return false;
+        return item.roles.includes(userRole);
+    };
+
+    const filterItems = (items: MainNavItem[]): MainNavItem[] => {
+        return items
+            .filter(filterByRole)
+            .map((item) => ({
+                ...item,
+                items: item.items ? filterItems(item.items) : undefined,
+            }))
+            .filter((item) => !item.items || item.items.length > 0);
+    };
+
+    const filteredItems = filterItems(items);
 
     const hasActiveDescendant = (item: MainNavItem): boolean => {
         if (item.href && isCurrentOrParentUrl(item.href)) {
@@ -86,7 +110,7 @@ export function NavMain({ items = [] }: { items: MainNavItem[] }) {
         <SidebarGroup className="px-2 py-0">
             <SidebarGroupLabel>Navigacija</SidebarGroupLabel>
             <SidebarMenu>
-                {items.map((item) => (
+                {filteredItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                         {item.items && item.items.length > 0 ? (
                             <Collapsible
