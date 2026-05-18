@@ -4,76 +4,138 @@ namespace App\Http\Controllers;
 
 use App\Models\Imovina;
 use App\Models\InventurnaLista;
+use App\Models\AuditLog;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class IzvjestajController extends Controller
 {
     public function index(): Response
     {
-        $sumCijena = (float) Imovina::query()->sum('cijena');
+        return Inertia::render('izvjestaji/index');
+    }
 
-        $inventurnaListaSazetak = [
-            'ukupno_listi' => InventurnaLista::query()->count(),
-            'otvorene_liste' => InventurnaLista::query()->where('status_liste', 'u_tijeku')->count(),
-            'zavrsene_liste' => InventurnaLista::query()->where('status_liste', 'zavrsena')->count(),
-        ];
+    public function provedenaInventura()
+    {
+        $liste = InventurnaLista::with('kreator')->latest('created_at')->get();
+        if (request()->has('pdf')) {
+            $pdf = Pdf::loadView('pdf.provedena-inventura', compact('liste'));
+            return $pdf->download('izvjestaj_provedena_inventura.pdf');
+        }
+        return Inertia::render('izvjestaji/provedena-inventura', ['liste' => $liste]);
+    }
 
-        return Inertia::render('izvjestaji/index', [
-            'sazetak' => [
-                'ukupno_imovine' => Imovina::query()->count(),
-                'ukupna_vrijednost' => number_format($sumCijena, 2, '.', ''),
-                'popisano' => Imovina::query()->whereNotNull('datum_popisa')->count(),
-                'izdano_na_revers' => Imovina::query()
-                    ->where('na_revers', true)
-                    ->whereNotNull('id_zaposlenika')
-                    ->count(),
-            ],
-            'inventurnaListaSazetak' => $inventurnaListaSazetak,
-            'poStatusu' => Imovina::query()
-                ->join('status_imovine', 'status_imovine.id_statusa', '=', 'imovina.id_statusa')
-                ->select('status_imovine.naziv_statusa', DB::raw('count(*) as ukupno'))
-                ->groupBy('status_imovine.naziv_statusa')
-                ->orderBy('status_imovine.naziv_statusa')
-                ->get(),
-            'poOdjelu' => Imovina::query()
-                ->leftJoin('odjeli', 'odjeli.id_odjela', '=', 'imovina.id_odjela')
-                ->select(DB::raw("coalesce(odjeli.naziv_odjela, 'Nedodijeljen odjel') as naziv_odjela"), DB::raw('count(*) as ukupno'))
-                ->groupBy(DB::raw("coalesce(odjeli.naziv_odjela, 'Nedodijeljen odjel')"))
-                ->orderBy('naziv_odjela')
-                ->get(),
-            'poLokaciji' => Imovina::query()
-                ->leftJoin('lokacije', 'lokacije.id_lokacije', '=', 'imovina.id_lokacije')
-                ->select(DB::raw("coalesce(lokacije.oznaka_sobe, 'Nedodijeljena lokacija') as oznaka_lokacije"), DB::raw('count(*) as ukupno'))
-                ->groupBy(DB::raw("coalesce(lokacije.oznaka_sobe, 'Nedodijeljena lokacija')"))
-                ->orderBy('oznaka_lokacije')
-                ->get(),
-            'poKategoriji' => Imovina::query()
-                ->join('kategorije_imovine', 'kategorije_imovine.id_kategorije', '=', 'imovina.id_kategorije')
-                ->select('kategorije_imovine.naziv_kategorije', DB::raw('count(*) as ukupno'))
-                ->groupBy('kategorije_imovine.naziv_kategorije')
-                ->orderBy('kategorije_imovine.naziv_kategorije')
-                ->get(),
-            'imovinaNaReversu' => Imovina::query()
-                ->with('zaposlenik:id_zaposlenika,ime_zaposlenika,prezime_zaposlenika')
-                ->where('na_revers', true)
-                ->whereNotNull('id_zaposlenika')
-                ->latest('id_imovine')
-                ->get(['id_imovine', 'inventarni_broj', 'naziv_imovine', 'id_zaposlenika', 'datum_zaduzenja']),
-            'imovinaNaServisu' => Imovina::query()
-                ->join('status_imovine', 'status_imovine.id_statusa', '=', 'imovina.id_statusa')
-                ->where('status_imovine.naziv_statusa', 'like', '%servis%')
-                ->latest('imovina.id_imovine')
-                ->get(['imovina.id_imovine', 'imovina.inventarni_broj', 'imovina.naziv_imovine', 'status_imovine.naziv_statusa']),
-            'rashodovanaImovina' => Imovina::query()
-                ->join('status_imovine', 'status_imovine.id_statusa', '=', 'imovina.id_statusa')
-                ->where(function ($query): void {
-                    $query->where('status_imovine.naziv_statusa', 'like', '%rashod%')
-                        ->orWhere('status_imovine.naziv_statusa', 'like', '%unist%');
-                })
-                ->latest('imovina.id_imovine')
-                ->get(['imovina.id_imovine', 'imovina.inventarni_broj', 'imovina.naziv_imovine', 'status_imovine.naziv_statusa']),
-        ]);
+    public function stanjeImovine()
+    {
+        $imovina = Imovina::with(['status', 'kategorija', 'lokacija', 'odjel'])->get();
+        if (request()->has('pdf')) {
+            $pdf = Pdf::loadView('pdf.stanje-imovine', compact('imovina'));
+            return $pdf->download('izvjestaj_stanje_imovine.pdf');
+        }
+        return Inertia::render('izvjestaji/stanje-imovine', ['imovina' => $imovina]);
+    }
+
+    public function izdanaImovina()
+    {
+        $imovina = Imovina::with(['zaposlenik', 'odjel'])
+            ->whereNotNull('id_zaposlenika')
+            ->orWhereNotNull('id_odjela')
+            ->get();
+        if (request()->has('pdf')) {
+            $pdf = Pdf::loadView('pdf.izdana-imovina', compact('imovina'));
+            return $pdf->download('izvjestaj_izdana_imovina.pdf');
+        }
+        return Inertia::render('izvjestaji/izdana-imovina', ['imovina' => $imovina]);
+    }
+
+    public function imovinaUOdjelima()
+    {
+        $imovina = Imovina::with('odjel')->whereNotNull('id_odjela')->get();
+        if (request()->has('pdf')) {
+            $pdf = Pdf::loadView('pdf.imovina-u-odjelima', compact('imovina'));
+            return $pdf->download('izvjestaj_imovina_u_odjelima.pdf');
+        }
+        return Inertia::render('izvjestaji/imovina-u-odjelima', ['imovina' => $imovina]);
+    }
+
+    public function imovinaNaLokacijama()
+    {
+        $imovina = Imovina::with('lokacija.zgrada')->whereNotNull('id_lokacije')->get();
+        if (request()->has('pdf')) {
+            $pdf = Pdf::loadView('pdf.imovina-na-lokacijama', compact('imovina'));
+            return $pdf->download('izvjestaj_imovina_na_lokacijama.pdf');
+        }
+        return Inertia::render('izvjestaji/imovina-na-lokacijama', ['imovina' => $imovina]);
+    }
+
+    public function imovinaPoKategoriji()
+    {
+        $imovina = Imovina::with('kategorija')->get();
+        if (request()->has('pdf')) {
+            $pdf = Pdf::loadView('pdf.imovina-po-kategoriji', compact('imovina'));
+            return $pdf->download('izvjestaj_imovina_po_kategoriji.pdf');
+        }
+        return Inertia::render('izvjestaji/imovina-po-kategoriji', ['imovina' => $imovina]);
+    }
+
+    public function imovinaUSkladistu()
+    {
+        $imovina = Imovina::whereHas('status', function ($query) {
+            $query->where('naziv_statusa', 'like', '%skladište%')->orWhere('naziv_statusa', 'like', '%skladiste%');
+        })->get();
+        if (request()->has('pdf')) {
+            $pdf = Pdf::loadView('pdf.imovina-u-skladistu', compact('imovina'));
+            return $pdf->download('izvjestaj_imovina_u_skladistu.pdf');
+        }
+        return Inertia::render('izvjestaji/imovina-u-skladistu', ['imovina' => $imovina]);
+    }
+
+    public function imovinaNaServisu()
+    {
+        $imovina = Imovina::whereHas('status', function ($query) {
+            $query->where('naziv_statusa', 'like', '%servis%');
+        })->get();
+        if (request()->has('pdf')) {
+            $pdf = Pdf::loadView('pdf.imovina-na-servisu', compact('imovina'));
+            return $pdf->download('izvjestaj_imovina_na_servisu.pdf');
+        }
+        return Inertia::render('izvjestaji/imovina-na-servisu', ['imovina' => $imovina]);
+    }
+
+    public function rashodovanaImovina()
+    {
+        $imovina = Imovina::whereHas('status', function ($query) {
+            $query->where('naziv_statusa', 'like', '%rashod%')->orWhere('naziv_statusa', 'like', '%unist%');
+        })->get();
+        if (request()->has('pdf')) {
+            $pdf = Pdf::loadView('pdf.rashodovana-imovina', compact('imovina'));
+            return $pdf->download('izvjestaj_rashodovana_imovina.pdf');
+        }
+        return Inertia::render('izvjestaji/rashodovana-imovina', ['imovina' => $imovina]);
+    }
+
+    public function revizijskiTrag()
+    {
+        $logovi = AuditLog::with('korisnik', 'funkcija')->latest('vrijeme_dogadaja')->limit(500)->get();
+        if (request()->has('pdf')) {
+            $pdf = Pdf::loadView('pdf.revizijski-trag', compact('logovi'));
+            return $pdf->download('izvjestaj_revizijski_trag.pdf');
+        }
+        return Inertia::render('izvjestaji/revizijski-trag', ['logovi' => $logovi]);
+    }
+
+    public function imovinaNaRevers()
+    {
+        $imovina = Imovina::with('zaposlenik')
+            ->where('na_revers', true)
+            ->whereNotNull('id_zaposlenika')
+            ->get();
+        if (request()->has('pdf')) {
+            $pdf = Pdf::loadView('pdf.imovina-na-revers', compact('imovina'));
+            return $pdf->download('izvjestaj_imovina_na_revers.pdf');
+        }
+        return Inertia::render('izvjestaji/imovina-na-revers', ['imovina' => $imovina]);
     }
 }
